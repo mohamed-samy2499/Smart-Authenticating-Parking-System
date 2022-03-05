@@ -1,4 +1,5 @@
 import time
+import os
 import tensorflow as tf
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
@@ -35,6 +36,7 @@ def main(_argv):
     STRIDES, ANCHORS, NUM_CLASS, XYSCALE = utils.load_config(FLAGS)
     input_size = FLAGS.size
     video_path = FLAGS.video
+
 
     if FLAGS.framework == 'tflite':
         interpreter = tf.lite.Interpreter(model_path=FLAGS.weights)
@@ -116,9 +118,15 @@ def main(_argv):
         if scores.numpy()[0, 0] > 0.9 and scores.numpy()[0, 1] == 0:
             pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
             frame = utils.draw_bbox(frame, pred_bbox)
+            parent_dir = os.getcwd() + '/'
+            f = open(parent_dir + 'num_plate.txt', 'w')
+            f.write("A B C 1 2 3") 
+            f.close()
+            break
+
         fps = 1.0 / (time.time() - start_time)
-        print("FPS: %.2f" % fps)
-        result = np.asarray(frame)
+        # print("FPS: %.2f" % fps)
+        # result = np.asarray(frame)
         cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
         result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         
