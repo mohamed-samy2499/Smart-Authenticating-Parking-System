@@ -1,1 +1,4 @@
 ANPR/checkpoints/
+FaceModule/model/
+FaceModule/aligned_img/
+FaceModule/train_img/
