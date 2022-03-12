@@ -122,7 +122,7 @@ def main(_argv):
             f = open(parent_dir + 'num_plate.txt', 'w')
             f.write("A B C 1 2 3") 
             f.close()
-            break
+            # break
 
         fps = 1.0 / (time.time() - start_time)
         # print("FPS: %.2f" % fps)
