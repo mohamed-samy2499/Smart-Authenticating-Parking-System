@@ -19,6 +19,12 @@ from flags_sub import Flags
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
+app = Flask(__name__)
+CORS(app)
+resources = {r"/api/*": {"origins": "*"}}
+app.config["CORS_HEADERS"] = "Content-Type"
+app.config['JSON_SORT_KEYS'] = False
+
 FLAGS = Flags('tf', './checkpoints/latest-416', 416,
             False, 'yolov4', './data/LP.mp4',
             None, 'XVID', 0.45, 0.25, False)
@@ -29,7 +35,6 @@ STRIDES, ANCHORS, NUM_CLASS, XYSCALE = utils.load_config(FLAGS)
 input_size = FLAGS.size
 video_path = FLAGS.video
 
-
 if FLAGS.framework == 'tflite':
     interpreter = tf.lite.Interpreter(model_path=FLAGS.weights)
     interpreter.allocate_tensors()
@@ -39,46 +44,39 @@ if FLAGS.framework == 'tflite':
     print(output_details)
 else:
     # with tf.device('/cpu:0'):
-    saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
-    infer = saved_model_loaded.signatures['serving_default']
-    # saved_model_loaded = tf.keras.models.load_model(FLAGS.weights, compile=False)
-    print('#################')
-    print('loaded')
-    print('#################')
-
-# begin video capture
-try:
-    vid = cv2.VideoCapture(int(video_path))
-except:
-    vid = cv2.VideoCapture(video_path)
-
-out = None
-
-if FLAGS.output:
-    # by default VideoCapture returns float instead of int
-    width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = int(vid.get(cv2.CAP_PROP_FPS))
-    codec = cv2.VideoWriter_fourcc(*FLAGS.output_format)
-    out = cv2.VideoWriter(FLAGS.output, codec, fps, (width, height))
+    # saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
+    # infer = saved_model_loaded.signatures['serving_default']
+    saved_model_loaded = tf.keras.models.load_model(FLAGS.weights, compile=False)
+    # print('#################')
+    # print('loaded')
+    # print('#################')
 
 @tf.function
 def make_pred(batch_data):
     return saved_model_loaded(batch_data, training= False)
 
-app = Flask(__name__)
-CORS(app)
-resources = {r"/api/*": {"origins": "*"}}
-app.config["CORS_HEADERS"] = "Content-Type"
-app.config['JSON_SORT_KEYS'] = False
-
-
 @app.route('/camFeed', methods=['POST'])
 def cam_feed():
-    return jsonify({"Message": request.form})
+    video_path = request.form.get('address')
+    return jsonify({"Message": video_path})
 
 @app.route('/start', methods=['GET'])
 def start():
+    print("Start of session")
+    try:
+        vid = cv2.VideoCapture(int(video_path))
+    except:
+        vid = cv2.VideoCapture(video_path)
+
+    out = None
+
+    if FLAGS.output:
+        # by default VideoCapture returns float instead of int
+        width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = int(vid.get(cv2.CAP_PROP_FPS))
+        codec = cv2.VideoWriter_fourcc(*FLAGS.output_format)
+        out = cv2.VideoWriter(FLAGS.output, codec, fps, (width, height))
     while True:
         return_value, frame = vid.read()
         if return_value:
@@ -108,21 +106,21 @@ def start():
             # if count % 50 == 0:
             #     plt.imsave('img_%d.jpg' % count, image_data[0])
             batch_data = tf.constant(image_data)
-            print('#################')
-            print('start of suspected area')
-            print('#################')
+            # print('#################')
+            # print('start of suspected area')
+            # print('#################')
             # with tf.device('/gpu:0'):
-            pred_bbox = infer(batch_data)
-            # pred_bbox = make_pred(batch_data)
-            print('#################')
-            print('end of suspected area')
-            print('#################')
+            # pred_bbox = infer(batch_data)
+            pred_bbox = make_pred(batch_data)
+            # print('#################')
+            # print('end of suspected area')
+            # print('#################')
             # print(pred_bbox.shape)
-            for key, value in pred_bbox.items():
-                boxes = value[:, :, 0:4]
-                pred_conf = value[:, :, 4:]
-            # boxes = pred_bbox[:, :, 0:4]
-            # pred_conf = pred_bbox[:, :, 4:]
+            # for key, value in pred_bbox.items():
+            #     boxes = value[:, :, 0:4]
+            #     pred_conf = value[:, :, 4:]
+            boxes = pred_bbox[:, :, 0:4]
+            pred_conf = pred_bbox[:, :, 4:]
 
 
         boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
@@ -140,36 +138,24 @@ def start():
             frame = utils.draw_bbox(frame, pred_bbox)
             # prompt for a number of times till getting face detected
             print("Signaling....")
-            # parent_dir = os.getcwd() + '/'
-            # f = open(parent_dir + 'num_plate.txt', 'w')
-            # f.write("A B C 1 2 3") 
-            # f.close()
-            # break
 
         fps = 1.0 / (time.time() - start_time)
         print("FPS: %.2f" % fps)
-        # result = np.asarray(frame)
-    #     cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
-    #     result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        result = np.asarray(frame)
+        # cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
+        result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         
-    #     if not FLAGS.dont_show:
-    #         cv2.imshow("result", result)
+        if not FLAGS.dont_show:
+            cv2.imshow("result", result)
+            print("showing window")
         
-    #     if FLAGS.output:
-    #         out.write(result)
-    #     if cv2.waitKey(1) & 0xFF == ord('q'): break
-    # cv2.destroyAllWindows()
+        if FLAGS.output:
+            out.write(result)
+        if cv2.waitKey(1) & 0xFF == ord('q'): break
+    cv2.destroyAllWindows()
+    vid.release()
+    return "End of current session"
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=7007)
-    # app.run(main)
-    # app = Flask(__name__)
-    # CORS(app)
-    # resources = {r"/api/*": {"origins": "*"}}
-    # app.config["CORS_HEADERS"] = "Content-Type"
-    # app.config['JSON_SORT_KEYS'] = False
-
-    # @app.route('/camFeed', methods=['POST'])
-    # def cam_feed():
-    #     return jsonify({"Message": request.form})
 
