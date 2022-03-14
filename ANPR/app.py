@@ -62,7 +62,7 @@ def cam_feed():
 
 @app.route('/start', methods=['GET'])
 def start():
-    print("Start of session")
+    # print("Start of session")
     try:
         vid = cv2.VideoCapture(int(video_path))
     except:
@@ -77,6 +77,9 @@ def start():
         fps = int(vid.get(cv2.CAP_PROP_FPS))
         codec = cv2.VideoWriter_fourcc(*FLAGS.output_format)
         out = cv2.VideoWriter(FLAGS.output, codec, fps, (width, height))
+    prev_num_plate = ""
+    current_num_plate = ""
+    count = 0
     while True:
         return_value, frame = vid.read()
         if return_value:
@@ -137,7 +140,13 @@ def start():
             pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
             frame = utils.draw_bbox(frame, pred_bbox)
             # prompt for a number of times till getting face detected
-            print("Signaling....")
+            current_num_plate = "123 ABC"
+            count += 1
+            if count == 5 and current_num_plate != prev_num_plate:
+                prev_num_plate = current_num_plate
+                print("Signaling....")
+                # data = {'num_plate': current_num_plate}
+                # response = requests.post("", data)
 
         fps = 1.0 / (time.time() - start_time)
         print("FPS: %.2f" % fps)
@@ -147,7 +156,7 @@ def start():
         
         if not FLAGS.dont_show:
             cv2.imshow("result", result)
-            print("showing window")
+            # print("showing window")
         
         if FLAGS.output:
             out.write(result)
