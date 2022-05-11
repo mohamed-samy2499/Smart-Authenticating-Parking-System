@@ -9,6 +9,8 @@ ANPR/**/**/__pycache__/
 FaceModule/model/
 FaceModule/aligned_img/
 FaceModule/train_img/
+FaceModule/tmp/
+tmp\ img/
 
 #BackEnd
 ## Ignore Visual Studio temporary files, build results, and
