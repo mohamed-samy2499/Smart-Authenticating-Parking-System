@@ -1,5 +1,12 @@
 ANPR/checkpoints/
+ANPR/detections/
 ANPR/data/
+ANPR/OCR/model
+ANPR/OCR/*.png
+ANPR/__pycache__/
+ANPR/**/__pycache__/
+ANPR/**/**/__pycache__/
 FaceModule/model/
 FaceModule/aligned_img/
 FaceModule/train_img/
+
