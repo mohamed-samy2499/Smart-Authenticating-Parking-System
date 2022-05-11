@@ -26,8 +26,8 @@ resources = {r"/api/*": {"origins": "*"}}
 app.config["CORS_HEADERS"] = "Content-Type"
 app.config['JSON_SORT_KEYS'] = False
 
-FLAGS = Flags('tf', './checkpoints/yolov4-tiny-416', 416,
-            True, 'yolov4', './data/LP5.mp4',
+FLAGS = Flags('tf', './checkpoints/tiny-custom-416', 416,
+            True, 'yolov4', './data/LP.mp4',
             None, 'XVID', 0.45, 0.25, False)
 # FLAGS = Flags('tf', './checkpoints/latest-416', 416,
 #             False, 'yolov4', './data/LP.mp4',
@@ -48,9 +48,9 @@ if FLAGS.framework == 'tflite':
     print(output_details)
 else:
     # with tf.device('/cpu:0'):
-    saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
-    infer = saved_model_loaded.signatures['serving_default']
-    # saved_model_loaded = tf.keras.models.load_model(FLAGS.weights, compile=False)
+    # saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
+    # infer = saved_model_loaded.signatures['serving_default']
+    saved_model_loaded = tf.keras.models.load_model(FLAGS.weights, compile=False)
     # print('#################')
     # print('loaded')
     # print('#################')
@@ -116,17 +116,17 @@ def start():
             # print('start of suspected area')
             # print('#################')
             # with tf.device('/gpu:0'):
-            pred_bbox = infer(batch_data)
-            # pred_bbox = make_pred(batch_data)
+            # pred_bbox = infer(batch_data)
+            pred_bbox = make_pred(batch_data)
             # print('#################')
             # print('end of suspected area')
             # print('#################')
             # print(pred_bbox.shape)
-            for key, value in pred_bbox.items():
-                boxes = value[:, :, 0:4]
-                pred_conf = value[:, :, 4:]
-            # boxes = pred_bbox[:, :, 0:4]
-            # pred_conf = pred_bbox[:, :, 4:]
+            # for key, value in pred_bbox.items():
+            #     boxes = value[:, :, 0:4]
+            #     pred_conf = value[:, :, 4:]
+            boxes = pred_bbox[:, :, 0:4]
+            pred_conf = pred_bbox[:, :, 4:]
 
 
         boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
