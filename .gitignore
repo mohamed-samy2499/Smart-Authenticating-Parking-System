@@ -1,6 +1,8 @@
 ANPR/checkpoints/
 ANPR/detections/
-ANPR/data/
+ANPR/data/*.weights
+ANPR/data/*.png
+ANPR/data/*.mp4
 ANPR/OCR/model
 ANPR/OCR/*.png
 ANPR/__pycache__/
