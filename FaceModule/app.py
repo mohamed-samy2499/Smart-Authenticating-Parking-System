@@ -22,9 +22,9 @@ from flask_cors import CORS
 # CameraPass = ""
 # CameraIP = ""
 # CameraType = ""
-video= 'rtsp://root:admin@10.0.10.41/axis-media/media.amp'
+# video= 'rtsp://root:admin@10.0.10.41/axis-media/media.amp'
 
-# video= 0
+video= 0
 
 modeldir = './model/20180402-114759.pb'
 classifier_filename = './class/classifier.pkl'
@@ -65,16 +65,16 @@ app.config['JSON_SORT_KEYS'] = False
 
 @app.route('/')
 def home():
-    r = request.form.get('num_plate')
+    # r = request.form.get('num_plate')
     video_capture = cv2.VideoCapture(video)
     print('Start Recognition')
-    print(r)
+    # print(r)
     frame_count=0
     break_flag = 0
-    plate_txt_path = "D:\\g\\Smart-Authenticating-Parking-System\\plateDetected.txt"
-    person_txt_path =  "D:\\g\\Smart-Authenticating-Parking-System\\person_detected.txt"
-    with open(plate_txt_path,"r") as b:
-        print(b.read())
+    # plate_txt_path = "D:\\g\\Smart-Authenticating-Parking-System\\plateDetected.txt"
+    # person_txt_path =  "D:\\g\\Smart-Authenticating-Parking-System\\person_detected.txt"
+    # with open(plate_txt_path,"r") as b:
+    #     print(b.read())
     person_name = ""
     conuter =0
     tmp = "-100"
