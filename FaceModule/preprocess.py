@@ -26,7 +26,7 @@ class preprocesses:
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
             sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
             with sess.as_default():
-                pnet, rnet, onet = detect_face.create_mtcnn(sess, './npy')
+                pnet, rnet, onet = detect_face.create_mtcnn(sess, 'npy')
 
         minsize = 20  # minimum size of face
         threshold = [0.5, 0.6, 0.6]  # three steps's threshold
