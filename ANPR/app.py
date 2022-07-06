@@ -27,7 +27,7 @@ app.config["CORS_HEADERS"] = "Content-Type"
 app.config['JSON_SORT_KEYS'] = False
 
 FLAGS = Flags('tf', './checkpoints/tiny-custom-416', 416,
-            True, 'yolov4', './data/LP.mp4',
+            True, 'yolov4', './data/LP1.mkv',
             None, 'XVID', 0.45, 0.25, False)
 # FLAGS = Flags('tf', './checkpoints/latest-416', 416,
 #             False, 'yolov4', './data/LP.mp4',
@@ -141,37 +141,37 @@ def start():
         # print(scores.numpy())
         if scores.numpy()[0, 0] > 0.9 and scores.numpy()[0, 1] == 0:
             pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
-            frame = utils.draw_bbox(frame, pred_bbox)
+            # frame = utils.draw_bbox(frame, pred_bbox)
+            cropped_plate = utils.save_number_plate(frame, pred_bbox, './data/cropped_plate_6.png')
+            predictions = OCR(cropped_plate)
+            response = app.response_class(
+                response=json.dumps({'Id': '3928SA'}),
+                status=200,
+                mimetype='application/json'
+            )
+            return response
             # prompt for a number of times till getting face detected
             # print(pred_bbox.shape)
             # current_num_plate = "123 ABC"
             # count += 1
             # if count == 5 and current_num_plate != prev_num_plate:
-            #     cropped_plate = utils.save_number_plate(frame, pred_bbox, './data/cropped_plate.png')
-            #     predictions = OCR(cropped_plate)
             #     print(predictions)
             #     prev_num_plate = current_num_plate
             #     count = 0
-            #     response = app.response_class(
-            #         response=json.dumps(predictions),
-            #         status=200,
-            #         mimetype='application/json'
-            #     )
-            #     return response
-        fps = 1.0 / (time.time() - start_time)
-        print("FPS: %.2f" % fps)
-        result = np.asarray(frame)
-        cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
-        result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        # fps = 1.0 / (time.time() - start_time)
+        # print("FPS: %.2f" % fps)
+        # result = np.asarray(frame)
+        # cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
+        # result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         
-        if not FLAGS.dont_show:
-            cv2.imshow("result", result)
-            print("showing window")
+        # if not FLAGS.dont_show:
+        #     cv2.imshow("result", result)
+        #     print("showing window")
         
     #     if FLAGS.output:
     #         out.write(result)
-        if cv2.waitKey(1) & 0xFF == ord('q'): break
-    cv2.destroyAllWindows()
+    #     if cv2.waitKey(1) & 0xFF == ord('q'): break
+    # cv2.destroyAllWindows()
     vid.release()
     return "End of current session"
 

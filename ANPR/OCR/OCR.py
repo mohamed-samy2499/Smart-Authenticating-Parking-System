@@ -40,7 +40,7 @@ def OCR(img):
         # char_list_flattened.append(char.tolist())
 
     # print(np.array(char_list_flattened).shape)
-    model_dir = os.path.join(os.getcwd(), 'OCR/model/model4_gray.sav')
+    model_dir = os.path.join(os.getcwd(), 'OCR/model/model5_gray_may_12.sav')
     predictions = predict(model_dir, char_list_flattened)
     return predictions 
     # for index, char in enumerate(char_list_flattened):

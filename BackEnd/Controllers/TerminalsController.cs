@@ -67,7 +67,7 @@ namespace Parking_System_API.Controllers
                  * 
                  * 
                  */
-                Thread VehicleThread = new Thread(() => PlateNum = "ABC123" );
+                Thread VehicleThread = new Thread(() => PlateNum = GetVehicleId("http://192.168.1.8:7007/") );
 
 
 
@@ -142,6 +142,14 @@ namespace Parking_System_API.Controllers
         }
 
         private static String GetParticipantId(String Url)
+        {
+            WebClient client = new WebClient();
+            byte[] response = client.DownloadData(Url);
+            string res = System.Text.Encoding.ASCII.GetString(response);
+            JObject json = JObject.Parse(res);
+            return json["Id"].ToString();
+        }
+        private static String GetVehicleId(String Url)
         {
             WebClient client = new WebClient();
             byte[] response = client.DownloadData(Url);
