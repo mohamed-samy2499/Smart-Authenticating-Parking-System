@@ -20,6 +20,7 @@ using Parking_System_API.Data.Repositories.ParticipantR;
 using Parking_System_API.Data.Repositories.RoleR;
 using Parking_System_API.Data.Repositories.SystemUserR;
 using Parking_System_API.Data.Repositories.VehicleR;
+using Parking_System_API.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,7 @@ namespace Parking_System_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
             services.AddCors();
             services.AddControllers();
             services.AddScoped<ISystemUserRepository, SystemUserRepository>();
@@ -108,6 +110,7 @@ namespace Parking_System_API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<SocketMessages>("/api/chat");
             });
         }
     }
