@@ -51,6 +51,7 @@ namespace Parking_System_API.Controllers
 
                 SocketMessages msgChannel = new SocketMessages();
                 var gate = await gateRepository.GetGateById(GateId, true);
+                await msgChannel.JoinRoom();
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with Id {GateId} is not found." });
                 if (!gate.Service)
@@ -63,7 +64,6 @@ namespace Parking_System_API.Controllers
                 }
                 //gate is closed
                 //calling APNR model
-                await msgChannel.JoinRoom();
                 string PlateNum = "";
                 /*
                  * 
