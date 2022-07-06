@@ -10,6 +10,7 @@ using Parking_System_API.Data.Repositories.HardwareR;
 using Parking_System_API.Data.Repositories.ParkingTransactionR;
 using Parking_System_API.Data.Repositories.ParticipantR;
 using Parking_System_API.Data.Repositories.VehicleR;
+using Parking_System_API.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,6 +49,7 @@ namespace Parking_System_API.Controllers
             {
                 //Car Press Presence Sensor
 
+                SocketMessages msgChannel = new SocketMessages();
                 var gate = await gateRepository.GetGateById(GateId, true);
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with Id {GateId} is not found." });
@@ -61,7 +63,7 @@ namespace Parking_System_API.Controllers
                 }
                 //gate is closed
                 //calling APNR model
-
+                await msgChannel.JoinRoom();
                 string PlateNum = "";
                 /*
                  * 
