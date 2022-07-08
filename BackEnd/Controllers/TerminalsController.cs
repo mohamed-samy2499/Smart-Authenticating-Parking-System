@@ -59,6 +59,7 @@ namespace Parking_System_API.Controllers
 
                 
                 var gate = await gateRepository.GetGateById(GateId, true);
+                await msgChannel.JoinRoom();
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with Id {GateId} is not found." });
                 if (!gate.Service)
