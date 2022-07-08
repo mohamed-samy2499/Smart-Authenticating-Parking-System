@@ -108,10 +108,11 @@ namespace Parking_System_API.Controllers
                 else 
                 {
                     await _messageHub.Clients.All.SendAsync("sendToReact",
-                    new SocketMessage() { model = "face", status = "success", terminate = true, message = $"face has been recognized with id :{ParticipantId}" });
+                    new SocketMessage() { model = "face", status = "success", terminate = false, message = $"face has been recognized with id :{ParticipantId}" });
                     await _messageHub.Clients.All.SendAsync("sendToReact",
-                    new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}" });
-
+                    new SocketMessage() { model = "plate", status = "success", terminate = false, message = $"plate has been recognized with number :{PlateNum}" });
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
 
                 Participant Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true);
