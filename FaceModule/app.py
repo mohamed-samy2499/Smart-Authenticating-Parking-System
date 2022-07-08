@@ -66,7 +66,7 @@ app.config['JSON_SORT_KEYS'] = False
 @app.route('/')
 def home():
     # r = request.form.get('num_plate')
-    video_capture = cv2.VideoCapture(video)
+    video_capture = cv2.VideoCapture(video+ cv2.CAP_DSHOW)
     print('Start Recognition')
     # print(r)
     frame_count=0
@@ -91,7 +91,7 @@ def home():
         # cv2.imshow('Face Recognition', frame)
         # frame  = cv2.imread("side1.jpg")
         timer =time.time()
-        if frame_count % 5 == 0 and frame is not None:
+        if frame_count % 5 == 0 and frame is not None and ret:
             if frame.ndim == 2:
                 frame = facenet.to_rgb(frame)
             bounding_boxes, _ = detect_face.detect_face(frame, minsize, pnet, rnet, onet, threshold, factor)
