@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Parking_System_API.Data.DBContext;
@@ -11,8 +12,10 @@ using Parking_System_API.Data.Repositories.ParkingTransactionR;
 using Parking_System_API.Data.Repositories.ParticipantR;
 using Parking_System_API.Data.Repositories.VehicleR;
 using Parking_System_API.Helper;
+
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -25,6 +28,7 @@ namespace Parking_System_API.Controllers
     [ApiController]
     public class TerminalsController : ControllerBase
     {
+        protected readonly IHubContext<MessageHub> _messageHub;
         private readonly AppDbContext context;
         private readonly IGateRepository gateRepository;
         private readonly ICameraRepository cameraRepository;
@@ -33,7 +37,7 @@ namespace Parking_System_API.Controllers
         private readonly IVehicleRepository vehicleRepository;
         private readonly IParkingTransactionRepository parkingTransactionRepository;
 
-        public TerminalsController(IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
+        public TerminalsController(IHubContext<MessageHub> messageHub, IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
         {
             this.gateRepository = gateRepository;
             this.cameraRepository = cameraRepository;
@@ -41,7 +45,11 @@ namespace Parking_System_API.Controllers
             this.participantRepository = participantRepository;
             this.vehicleRepository = vehicleRepository;
             this.parkingTransactionRepository = parkingTransactionRepository;
+            _messageHub = messageHub;
         }
+
+
+
         [HttpPost("CarEntry/{GateId:int}")]
         public async Task<IActionResult> CarEntering(int GateId)
         {
@@ -49,7 +57,7 @@ namespace Parking_System_API.Controllers
             {
                 //Car Press Presence Sensor
 
-                SocketMessages msgChannel = new SocketMessages();
+                
                 var gate = await gateRepository.GetGateById(GateId, true);
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with Id {GateId} is not found." });
@@ -63,15 +71,14 @@ namespace Parking_System_API.Controllers
                 }
                 //gate is closed
                 //calling APNR model
-                await msgChannel.JoinRoom();
                 string PlateNum = "";
                 /*
                  * 
                  * 
                  */
-                Thread VehicleThread = new Thread(() => PlateNum = GetVehicleId("http://192.168.1.8:7007/") );
+                Thread VehicleThread = new Thread(() => PlateNum = "ABC123"/*GetVehicleId("http://192.168.1.8:7007/")*/ );
 
-
+                await _messageHub.Clients.All.SendAsync("sendToReact", "The message has been received");
 
                 //calling the faceModel
 

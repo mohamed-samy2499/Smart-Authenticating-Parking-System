@@ -110,7 +110,7 @@ namespace Parking_System_API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<SocketMessages>("/api/chat");
+                endpoints.MapHub<MessageHub>("/api/message");
             });
         }
     }
