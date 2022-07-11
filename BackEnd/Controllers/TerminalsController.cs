@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Parking_System_API.Data.DBContext;
@@ -10,8 +11,11 @@ using Parking_System_API.Data.Repositories.HardwareR;
 using Parking_System_API.Data.Repositories.ParkingTransactionR;
 using Parking_System_API.Data.Repositories.ParticipantR;
 using Parking_System_API.Data.Repositories.VehicleR;
+using Parking_System_API.Helper;
+using Parking_System_API.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -24,6 +28,7 @@ namespace Parking_System_API.Controllers
     [ApiController]
     public class TerminalsController : ControllerBase
     {
+        protected readonly IHubContext<MessageHub> _messageHub;
         private readonly AppDbContext context;
         private readonly IGateRepository gateRepository;
         private readonly ICameraRepository cameraRepository;
@@ -32,7 +37,7 @@ namespace Parking_System_API.Controllers
         private readonly IVehicleRepository vehicleRepository;
         private readonly IParkingTransactionRepository parkingTransactionRepository;
 
-        public TerminalsController(IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
+        public TerminalsController(IHubContext<MessageHub> messageHub, IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
         {
             this.gateRepository = gateRepository;
             this.cameraRepository = cameraRepository;
@@ -40,7 +45,11 @@ namespace Parking_System_API.Controllers
             this.participantRepository = participantRepository;
             this.vehicleRepository = vehicleRepository;
             this.parkingTransactionRepository = parkingTransactionRepository;
+            _messageHub = messageHub;
         }
+
+
+
         [HttpPost("CarEntry/{GateId:int}")]
         public async Task<IActionResult> CarEntering(int GateId)
         {
@@ -48,7 +57,9 @@ namespace Parking_System_API.Controllers
             {
                 //Car Press Presence Sensor
 
+                
                 var gate = await gateRepository.GetGateById(GateId, true);
+
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with Id {GateId} is not found." });
                 if (!gate.Service)
@@ -61,15 +72,13 @@ namespace Parking_System_API.Controllers
                 }
                 //gate is closed
                 //calling APNR model
-
                 string PlateNum = "";
-                /*
-                 * 
-                 * 
-                 */
-                Thread VehicleThread = new Thread(() => PlateNum = "ABC123" );
+                await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "plate", status = "loading", terminate = false, message = "plate recognition system started" });
+                Thread VehicleThread = new Thread(() => PlateNum = "ABC123"/*GetVehicleId("http://192.168.1.8:7007/")*/ );
 
-
+                await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model="face", status = "loading" , terminate = false , message = "face recognition system started"});
 
                 //calling the faceModel
 
@@ -82,30 +91,35 @@ namespace Parking_System_API.Controllers
 
                 ParticipantIdThread.Join();
                 VehicleThread.Join();
+                
+                if(ParticipantId == "InternalError")
+                {
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed " });
+                    return NotFound("face recognition failed");
 
+                }
+                    
+                else if (ParticipantId == "unknown")
+                    return NotFound(new { Error = "ParticipantId is unknown" });
 
+                else if (ParticipantId == null)
+                    return BadRequest(new { Error = "ParticipantId is null" });
+                else 
+                {
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "face", status = "success", terminate = false, message = $"face has been recognized with id :{ParticipantId}" });
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "plate", status = "success", terminate = false, message = $"plate has been recognized with number :{PlateNum}" });
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "", status = "", terminate = true, message = "" });
+                    Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
 
-                Vehicle car = null;
-                Thread SearchCarThread = new Thread(
-                    async () => car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum));
-
-                Participant Person = null;
-                Thread SearchParticipantThread = new Thread(
-                    async () => Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true)
-                    );
-                SearchCarThread.Start();
-                SearchParticipantThread.Start();
-
-                SearchCarThread.Join();
-                SearchParticipantThread.Join();
+                Participant Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true);
 
                 if (car == null)
                     return NotFound(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
 
-                if (ParticipantId == null)
-                    return BadRequest(new { Error = "ParticipantId is null" });
-                if (ParticipantId == "unknown")
-                    return NotFound(new { Error = "ParticipantId is unknown" });
 
                 //checking if Id exists in DB
                 
@@ -133,6 +147,7 @@ namespace Parking_System_API.Controllers
 
                 }
                 return NotFound(new { Error = $"Participant with {ParticipantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
+                }
             }
             catch (Exception ex)
             {
@@ -142,6 +157,22 @@ namespace Parking_System_API.Controllers
         }
 
         private static String GetParticipantId(String Url)
+        {
+            try 
+            {
+            WebClient client = new WebClient();
+            byte[] response = client.DownloadData(Url);
+            string res = System.Text.Encoding.ASCII.GetString(response);
+            JObject json = JObject.Parse(res);
+            return json["Id"].ToString();
+
+            }
+            catch (Exception ex)
+            {
+                return  $"InternalError";
+            }
+        }
+        private static String GetVehicleId(String Url)
         {
             WebClient client = new WebClient();
             byte[] response = client.DownloadData(Url);

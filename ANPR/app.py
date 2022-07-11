@@ -27,7 +27,7 @@ app.config["CORS_HEADERS"] = "Content-Type"
 app.config['JSON_SORT_KEYS'] = False
 
 FLAGS = Flags('tf', './checkpoints/tiny-custom-416', 416,
-            True, 'yolov4', './data/LP6.mkv',
+            True, 'yolov4', './data/LP1.mkv',
             None, 'XVID', 0.45, 0.25, False)
 # FLAGS = Flags('tf', './checkpoints/latest-416', 416,
 #             False, 'yolov4', './data/LP.mp4',
@@ -145,7 +145,7 @@ def start():
             cropped_plate = utils.save_number_plate(frame, pred_bbox, './data/cropped_plate_6.png')
             predictions = OCR(cropped_plate)
             response = app.response_class(
-                response=json.dumps({'number_plate: ': '3928SA'}),
+                response=json.dumps({'Id': '3928SA'}),
                 status=200,
                 mimetype='application/json'
             )
