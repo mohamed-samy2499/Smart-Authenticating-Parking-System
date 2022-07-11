@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import os
-from settings import * 
+from .settings import * 
 
 def draw_hist(img, invert, show):
     # blur = cv2.GaussianBlur(img, (5,5), 0)

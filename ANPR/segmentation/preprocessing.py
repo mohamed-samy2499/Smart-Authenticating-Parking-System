@@ -1,6 +1,6 @@
 import cv2
 import os
-from settings import * 
+from .settings import * 
 
 def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     dim = None

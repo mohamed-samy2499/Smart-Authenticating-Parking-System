@@ -1,10 +1,9 @@
 from imutils import contours
-from preprocessing import *
-from csv_hist import *
-from draw_fig import *
-from segment import *
-from settings import *
-from preprocessing import *
+from .preprocessing import *
+from .csv_hist import *
+from .draw_fig import *
+from .segment import *
+from .settings import *
 
 
 def cnt_fn(img, show):

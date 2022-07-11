@@ -6,7 +6,7 @@ from scipy.signal import find_peaks
 import os
 import cv2
 import numpy as np
-from settings import *
+from .settings import *
 
 def segment_invert(img, peak, segments, debug, show):
     height, width = img.shape
