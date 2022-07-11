@@ -145,6 +145,31 @@ def save_number_plate(image, bboxes, save_path, image_name):
         cv2.imwrite(os.path.join(save_path, image_name), cropped_plate)
         return image
 
+def crop_number_plate(image, bboxes):
+    image_h, image_w, _ = image.shape
+    out_boxes, out_scores, out_classes, num_boxes = bboxes
+    for i in range(num_boxes[0]):
+        coor = out_boxes[0][i]
+        coor[0] = int(coor[0] * image_h)
+        coor[2] = int(coor[2] * image_h)
+        coor[1] = int(coor[1] * image_w)
+        coor[3] = int(coor[3] * image_w)
+        c1, c2 = (coor[1], coor[0]), (coor[3], coor[2])
+        cropped_plate = image[int(np.float32(c1[1])):int(np.float32(c2[1])), int(np.float32(c1[0])):int(np.float32(c2[0]))]
+        # cv2.imshow('cropped_plate', cropped_plate)
+        cropped_plate = cv2.cvtColor(cropped_plate, cv2.COLOR_RGB2BGR)
+        return cropped_plate
+
+def crop_square(img, size, interpolation=cv2.INTER_AREA):
+    h, w = img.shape[:2]
+    min_size = np.amin([h,w])
+
+    # Centralize and crop
+    crop_img = np.asarray( img[int(h/2-min_size/2):int(h/2+min_size/2), int(w/2-min_size/2):int(w/2+min_size/2)] )
+    resized = cv2.resize(crop_img, (size, size), interpolation=interpolation)
+
+    return resized
+
 def draw_bbox(image, bboxes, classes=read_class_names(cfg.YOLO.CLASSES), allowed_classes=list(read_class_names(cfg.YOLO.CLASSES).values()), show_label=True):
     num_classes = len(classes)
     image_h, image_w, _ = image.shape
