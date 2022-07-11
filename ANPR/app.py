@@ -18,7 +18,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask import json
 
-from OCR.OCR import OCR
 
 app = Flask(__name__)
 CORS(app)
@@ -39,21 +38,9 @@ STRIDES, ANCHORS, NUM_CLASS, XYSCALE = utils.load_config(FLAGS)
 input_size = FLAGS.size
 video_path = FLAGS.video
 
-if FLAGS.framework == 'tflite':
-    interpreter = tf.lite.Interpreter(model_path=FLAGS.weights)
-    interpreter.allocate_tensors()
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-    print(input_details)
-    print(output_details)
-else:
-    # with tf.device('/cpu:0'):
-    # saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
-    # infer = saved_model_loaded.signatures['serving_default']
-    saved_model_loaded = tf.keras.models.load_model(FLAGS.weights, compile=False)
-    # print('#################')
-    # print('loaded')
-    # print('#################')
+# saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
+# infer = saved_model_loaded.signatures['serving_default']
+saved_model_loaded = tf.keras.models.load_model(FLAGS.weights, compile=False)
 
 @tf.function
 def make_pred(batch_data):
@@ -100,33 +87,14 @@ def start():
         image_data = image_data[np.newaxis, ...].astype(np.float32)
         start_time = time.time()
 
-        if FLAGS.framework == 'tflite':
-            interpreter.set_tensor(input_details[0]['index'], image_data)
-            interpreter.invoke()
-            pred = [interpreter.get_tensor(output_details[i]['index']) for i in range(len(output_details))]
-            if FLAGS.model == 'yolov3' and FLAGS.tiny == True:
-                boxes, pred_conf = filter_boxes(pred[1], pred[0], score_threshold=0.25,
-                                                input_shape=tf.constant([input_size, input_size]))
-            else:
-                boxes, pred_conf = filter_boxes(pred[0], pred[1], score_threshold=0.25,
-                                                input_shape=tf.constant([input_size, input_size]))
-        else:
-            batch_data = tf.constant(image_data)
-            # print('#################')
-            # print('start of suspected area')
-            # print('#################')
-            # with tf.device('/gpu:0'):
-            # pred_bbox = infer(batch_data)
-            pred_bbox = make_pred(batch_data)
-            # print('#################')
-            # print('end of suspected area')
-            # print('#################')
-            # print(pred_bbox.shape)
-            # for key, value in pred_bbox.items():
-            #     boxes = value[:, :, 0:4]
-            #     pred_conf = value[:, :, 4:]
-            boxes = pred_bbox[:, :, 0:4]
-            pred_conf = pred_bbox[:, :, 4:]
+        batch_data = tf.constant(image_data)
+        # pred_bbox = infer(batch_data)
+        pred_bbox = make_pred(batch_data)
+        # for key, value in pred_bbox.items():
+        #     boxes = value[:, :, 0:4]
+        #     pred_conf = value[:, :, 4:]
+        boxes = pred_bbox[:, :, 0:4]
+        pred_conf = pred_bbox[:, :, 4:]
 
 
         boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
@@ -138,40 +106,19 @@ def start():
             iou_threshold=FLAGS.iou,
             score_threshold=FLAGS.score
         )
-        # print(scores.numpy())
         if scores.numpy()[0, 0] > 0.9 and scores.numpy()[0, 1] == 0:
             pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
             # frame = utils.draw_bbox(frame, pred_bbox)
             cropped_plate = utils.save_number_plate(frame, pred_bbox, './data/cropped_plate_6.png')
-            predictions = OCR(cropped_plate)
+            """
+            predictions are made here then returned as a response 
+            """
             response = app.response_class(
                 response=json.dumps({'Id': '3928SA'}),
                 status=200,
                 mimetype='application/json'
             )
             return response
-            # prompt for a number of times till getting face detected
-            # print(pred_bbox.shape)
-            # current_num_plate = "123 ABC"
-            # count += 1
-            # if count == 5 and current_num_plate != prev_num_plate:
-            #     print(predictions)
-            #     prev_num_plate = current_num_plate
-            #     count = 0
-        # fps = 1.0 / (time.time() - start_time)
-        # print("FPS: %.2f" % fps)
-        # result = np.asarray(frame)
-        # cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
-        # result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        
-        # if not FLAGS.dont_show:
-        #     cv2.imshow("result", result)
-        #     print("showing window")
-        
-    #     if FLAGS.output:
-    #         out.write(result)
-    #     if cv2.waitKey(1) & 0xFF == ord('q'): break
-    # cv2.destroyAllWindows()
     vid.release()
     return "End of current session"
 

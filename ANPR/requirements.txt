@@ -1,9 +1,0 @@
-opencv-python
-lxml
-tqdm
-tensorflow
-absl-py
-easydict
-matplotlib
-pillow
-flask
