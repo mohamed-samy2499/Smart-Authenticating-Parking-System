@@ -1,5 +1,6 @@
 ANPR/checkpoints/
 ANPR/detections/
+ANPR/number_plate/
 ANPR/data/*.weights
 ANPR/data/*.png
 ANPR/data/*.mp4
@@ -8,6 +9,8 @@ ANPR/OCR/*.png
 ANPR/__pycache__/
 ANPR/**/__pycache__/
 ANPR/**/**/__pycache__/
+*.avi
+*.mkv
 FaceModule/model/
 FaceModule/aligned_img/
 FaceModule/train_img/

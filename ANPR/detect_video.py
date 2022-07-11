@@ -29,6 +29,16 @@ flags.DEFINE_float('iou', 0.45, 'iou threshold')
 flags.DEFINE_float('score', 0.25, 'score threshold')
 flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 
+def crop_square(img, size, interpolation=cv2.INTER_AREA):
+    h, w = img.shape[:2]
+    min_size = np.amin([h,w])
+
+    # Centralize and crop
+    crop_img = np.asarray( img[int(h/2-min_size/2):int(h/2+min_size/2), int(w/2-min_size/2):int(w/2+min_size/2)] )
+    resized = cv2.resize(crop_img, (size, size), interpolation=interpolation)
+
+    return resized
+
 def main(_argv):
     config = ConfigProto()
     config.gpu_options.allow_growth = True
@@ -64,23 +74,31 @@ def main(_argv):
         height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = int(vid.get(cv2.CAP_PROP_FPS))
         codec = cv2.VideoWriter_fourcc(*FLAGS.output_format)
-        out = cv2.VideoWriter(FLAGS.output, codec, fps, (width, height))
+        out = cv2.VideoWriter(FLAGS.output, codec, fps, (input_size, input_size))
 
     @tf.function
     def make_pred(batch_data):
         return saved_model_loaded(batch_data, training= False)
 
+    image_name = 0
     while True:
         return_value, frame = vid.read()
         if return_value:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image = Image.fromarray(frame)
+            # image = Image.fromarray(frame)
         else:
             print('Video has ended or failed, try a different video format!')
             break
     
         frame_size = frame.shape[:2]
-        image_data = cv2.resize(frame, (input_size, input_size))
+        # print("video frame size: ", frame_size)
+        # print("video frame type: ", type(frame))
+        # image_data = cv2.resize(frame, (input_size, input_size))
+        image_data = crop_square(frame, input_size)
+        frame = image_data.copy()
+        # cv2.imshow('image data after resize', image_data)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         image_data = image_data / 255.
         image_data = image_data[np.newaxis, ...].astype(np.float32)
         start_time = time.time()
@@ -114,24 +132,22 @@ def main(_argv):
             iou_threshold=FLAGS.iou,
             score_threshold=FLAGS.score
         )
-        # print(scores.numpy())
         if scores.numpy()[0, 0] > 0.9 and scores.numpy()[0, 1] == 0:
             pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
-            frame = utils.draw_bbox(frame, pred_bbox)
-            parent_dir = os.getcwd() + '/'
-            f = open(parent_dir + 'num_plate.txt', 'w')
-            f.write("A B C 1 2 3") 
-            f.close()
-            # break
+            # frame = utils.draw_bbox(frame, pred_bbox)
+            """Saving cropped license plate to disk"""
+            frame = utils.save_number_plate(frame, pred_bbox, os.path.join(os.getcwd(), 'number_plate/LP8'), str(image_name)+'.jpg')
+            image_name = image_name + 1
 
         fps = 1.0 / (time.time() - start_time)
         # print("FPS: %.2f" % fps)
-        # result = np.asarray(frame)
+        result = np.asarray(frame)
         cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
         result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         
         if not FLAGS.dont_show:
             cv2.imshow("result", result)
+            # cv2.waitKey(0)
         
         if FLAGS.output:
             out.write(result)

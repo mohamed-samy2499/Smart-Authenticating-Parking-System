@@ -124,7 +124,12 @@ def image_preprocess(image, target_size, gt_boxes=None):
         gt_boxes[:, [1, 3]] = gt_boxes[:, [1, 3]] * scale + dh
         return image_paded, gt_boxes
 
-def save_number_plate(image, bboxes, save_path):
+def save_number_plate(image, bboxes, save_path, image_name):
+    import os
+    try:
+        os.makedirs(save_path, exist_ok = True)
+    except OSError as error:
+        print("Directory can not be created")
     image_h, image_w, _ = image.shape
     out_boxes, out_scores, out_classes, num_boxes = bboxes
     for i in range(num_boxes[0]):
@@ -137,8 +142,8 @@ def save_number_plate(image, bboxes, save_path):
         cropped_plate = image[int(np.float32(c1[1])):int(np.float32(c2[1])), int(np.float32(c1[0])):int(np.float32(c2[0]))]
         # cv2.imshow('cropped_plate', cropped_plate)
         cropped_plate = cv2.cvtColor(cropped_plate, cv2.COLOR_RGB2BGR)
-        cv2.imwrite(save_path, cropped_plate)
-        return cropped_plate
+        cv2.imwrite(os.path.join(save_path, image_name), cropped_plate)
+        return image
 
 def draw_bbox(image, bboxes, classes=read_class_names(cfg.YOLO.CLASSES), allowed_classes=list(read_class_names(cfg.YOLO.CLASSES).values()), show_label=True):
     num_classes = len(classes)
