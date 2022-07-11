@@ -21,9 +21,9 @@ def predict(pickle_model, char_list):
     for char in char_list:
         predicted_char = model.predict(char)
         predictions.append(predicted_char)
-    plate_symbols = []
+    plate_symbols = ''
     for char in predictions:
-        plate_symbols.append(categories[char[0]])
+        plate_symbols += categories[char[0]]
     return plate_symbols
 
 # def obtain_data(folder_name, pickle_data_name):
