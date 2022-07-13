@@ -84,17 +84,18 @@ namespace Parking_System_API.Controllers
 
                 //calling the faceModel
 
-                string ParticipantId = "";
-                //Thread ParticipantIdThread = new Thread(
-                //    () =>
-                //    ParticipantId = GetParticipantId("http://127.0.0.1:5000/"));
-                //ParticipantIdThread.Start();
+                JObject ParticipantId = (JObject)"";
+                Thread ParticipantIdThread = new Thread(
+                    () =>
+                    ParticipantId = GetParticipantId("http://127.0.0.1:5000/"));
+                ParticipantIdThread.Start();
                 VehicleThread.Start();
 
-                //ParticipantIdThread.Join();
+                ParticipantIdThread.Join();
                 VehicleThread.Join();
-                
-                if(ParticipantId == "InternalError")
+                var face_path = (string)ParticipantId["face"];
+                var participantId = (string)ParticipantId["Id"];
+                if(participantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
@@ -102,7 +103,7 @@ namespace Parking_System_API.Controllers
 
                 }
                     
-                else if (ParticipantId == "unknown")
+                else if (participantId == "unknown")
                     return NotFound(new { Error = "ParticipantId is unknown" });
 
                 else if (ParticipantId == null)
@@ -112,7 +113,7 @@ namespace Parking_System_API.Controllers
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "face", status = "success", 
                         terminate = false, message = $"face has been recognized with id :{ParticipantId}",
-                        imagePath = ""
+                        imagePath = face_path
                     });
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "plate", status = "success",
@@ -121,7 +122,7 @@ namespace Parking_System_API.Controllers
                     new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
 
-                Participant Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true);
+                Participant Person = await participantRepository.GetParticipantAsyncByID(participantId, true);
 
                 if (car == null)
                     return NotFound(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
@@ -130,7 +131,7 @@ namespace Parking_System_API.Controllers
                 //checking if Id exists in DB
                 
                 if (Person == null)
-                    return NotFound(new { Error = $"Person with Id {ParticipantId} is not found." });
+                    return NotFound(new { Error = $"Person with Id {participantId} is not found." });
 
 
                 if (Person.Vehicles.Contains(car))
@@ -152,7 +153,7 @@ namespace Parking_System_API.Controllers
                     }
 
                 }
-                return NotFound(new { Error = $"Participant with {ParticipantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
+                return NotFound(new { Error = $"Participant with {participantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
                 }
             }
             catch (Exception ex)
@@ -162,7 +163,7 @@ namespace Parking_System_API.Controllers
 
         }
 
-        private static String GetParticipantId(String Url)
+        private static JObject GetParticipantId(String Url)
         {
             try 
             {
@@ -170,12 +171,13 @@ namespace Parking_System_API.Controllers
             byte[] response = client.DownloadData(Url);
             string res = System.Text.Encoding.ASCII.GetString(response);
             JObject json = JObject.Parse(res);
-            return json["Id"].ToString();
+            var face_path = json["face"].ToString();
+            return json;
 
             }
             catch (Exception ex)
             {
-                return  $"InternalError";
+                return (JObject)$"InternalError";
             }
         }
         private static String GetVehicleId(String Url)
