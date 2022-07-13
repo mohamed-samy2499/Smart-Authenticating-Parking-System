@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Parking_System_API.Data.DBContext;
@@ -10,8 +11,13 @@ using Parking_System_API.Data.Repositories.HardwareR;
 using Parking_System_API.Data.Repositories.ParkingTransactionR;
 using Parking_System_API.Data.Repositories.ParticipantR;
 using Parking_System_API.Data.Repositories.VehicleR;
+using Parking_System_API.Helper;
+using Parking_System_API.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -24,6 +30,7 @@ namespace Parking_System_API.Controllers
     [ApiController]
     public class TerminalsController : ControllerBase
     {
+        protected readonly IHubContext<MessageHub> _messageHub;
         private readonly AppDbContext context;
         private readonly IGateRepository gateRepository;
         private readonly ICameraRepository cameraRepository;
@@ -32,7 +39,7 @@ namespace Parking_System_API.Controllers
         private readonly IVehicleRepository vehicleRepository;
         private readonly IParkingTransactionRepository parkingTransactionRepository;
 
-        public TerminalsController(IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
+        public TerminalsController(IHubContext<MessageHub> messageHub, IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
         {
             this.gateRepository = gateRepository;
             this.cameraRepository = cameraRepository;
@@ -40,7 +47,11 @@ namespace Parking_System_API.Controllers
             this.participantRepository = participantRepository;
             this.vehicleRepository = vehicleRepository;
             this.parkingTransactionRepository = parkingTransactionRepository;
+            _messageHub = messageHub;
         }
+
+
+
         [HttpPost("CarEntry/{GateId:int}")]
         public async Task<IActionResult> CarEntering(int GateId)
         {
@@ -48,7 +59,9 @@ namespace Parking_System_API.Controllers
             {
                 //Car Press Presence Sensor
 
+                
                 var gate = await gateRepository.GetGateById(GateId, true);
+
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with Id {GateId} is not found." });
                 if (!gate.Service)
@@ -61,19 +74,17 @@ namespace Parking_System_API.Controllers
                 }
                 //gate is closed
                 //calling APNR model
-
                 string PlateNum = "";
-                /*
-                 * 
-                 * 
-                 */
-                Thread VehicleThread = new Thread(() => PlateNum = "ABC123" );
+                await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "plate", status = "loading", terminate = false, message = "plate recognition system started" , imagePath = "" });
+                Thread VehicleThread = new Thread(() => PlateNum = GetVehicleId("http://127.0.0.1:5000/start"));
 
-
+                await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model="face", status = "loading" , terminate = false , message = "face recognition system started", imagePath = "" });
 
                 //calling the faceModel
 
-                string ParticipantId = "";
+                JObject ParticipantId = (JObject)"";
                 Thread ParticipantIdThread = new Thread(
                     () =>
                     ParticipantId = GetParticipantId("http://127.0.0.1:5000/"));
@@ -82,35 +93,45 @@ namespace Parking_System_API.Controllers
 
                 ParticipantIdThread.Join();
                 VehicleThread.Join();
+                var face_path = (string)ParticipantId["face"];
+                var participantId = (string)ParticipantId["Id"];
+                if(participantId == "InternalError")
+                {
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+                    return NotFound("face recognition failed");
 
+                }
+                    
+                else if (participantId == "unknown")
+                    return NotFound(new { Error = "ParticipantId is unknown" });
 
+                else if (ParticipantId == null)
+                    return BadRequest(new { Error = "ParticipantId is null" });
+                else 
+                {
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "face", status = "success", 
+                        terminate = false, message = $"face has been recognized with id :{ParticipantId}",
+                        imagePath = face_path
+                    });
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "plate", status = "success",
+                        terminate = false, message = $"plate has been recognized with number :{PlateNum}", imagePath = Path.Combine(Directory.GetCurrentDirectory(),"plate.jpeg") });
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "", status = "", terminate = true, message = "" });
+                    Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
 
-                Vehicle car = null;
-                Thread SearchCarThread = new Thread(
-                    async () => car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum));
-
-                Participant Person = null;
-                Thread SearchParticipantThread = new Thread(
-                    async () => Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true)
-                    );
-                SearchCarThread.Start();
-                SearchParticipantThread.Start();
-
-                SearchCarThread.Join();
-                SearchParticipantThread.Join();
+                Participant Person = await participantRepository.GetParticipantAsyncByID(participantId, true);
 
                 if (car == null)
                     return NotFound(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
 
-                if (ParticipantId == null)
-                    return BadRequest(new { Error = "ParticipantId is null" });
-                if (ParticipantId == "unknown")
-                    return NotFound(new { Error = "ParticipantId is unknown" });
 
                 //checking if Id exists in DB
                 
                 if (Person == null)
-                    return NotFound(new { Error = $"Person with Id {ParticipantId} is not found." });
+                    return NotFound(new { Error = $"Person with Id {participantId} is not found." });
 
 
                 if (Person.Vehicles.Contains(car))
@@ -132,7 +153,8 @@ namespace Parking_System_API.Controllers
                     }
 
                 }
-                return NotFound(new { Error = $"Participant with {ParticipantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
+                return NotFound(new { Error = $"Participant with {participantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
+                }
             }
             catch (Exception ex)
             {
@@ -141,12 +163,45 @@ namespace Parking_System_API.Controllers
 
         }
 
-        private static String GetParticipantId(String Url)
+        private static JObject GetParticipantId(String Url)
+        {
+            try 
+            {
+            WebClient client = new WebClient();
+            byte[] response = client.DownloadData(Url);
+            string res = System.Text.Encoding.ASCII.GetString(response);
+            JObject json = JObject.Parse(res);
+            var face_path = json["face"].ToString();
+            return json;
+
+            }
+            catch (Exception ex)
+            {
+                return (JObject)$"InternalError";
+            }
+        }
+        private static String GetVehicleId(String Url)
         {
             WebClient client = new WebClient();
             byte[] response = client.DownloadData(Url);
             string res = System.Text.Encoding.ASCII.GetString(response);
             JObject json = JObject.Parse(res);
+            //byte[] bytes = Convert.FromBase64String(json["plate"].ToString());
+            //Image image;
+            //using (MemoryStream ms = new MemoryStream(bytes))
+            //{
+            //    image = Image.FromStream(ms);
+            //}
+            //var base64EncodedBytes = System.Convert.FromBase64String(json["plate"].ToString());
+            //var img = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+            byte[] bytes = Convert.FromBase64String(json["plate"].ToString());
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "plate.jpeg");
+            //var stream = new FileStream(filePath, FileMode.Create);
+            MemoryStream ms = new MemoryStream(bytes);
+            Image ret = Image.FromStream(ms);
+            var i2 = new Bitmap(ret);
+            //send i2 to the frontend on sockets
+            i2.Save("plate.jpeg", ImageFormat.Jpeg);
             return json["Id"].ToString();
         }
 
