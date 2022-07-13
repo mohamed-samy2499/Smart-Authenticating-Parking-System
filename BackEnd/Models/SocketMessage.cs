@@ -7,5 +7,8 @@
         public bool terminate { get; set; }
         public string message { get; set; }
 
+        public string imagePath { get; set; }
+
+
     }
 }

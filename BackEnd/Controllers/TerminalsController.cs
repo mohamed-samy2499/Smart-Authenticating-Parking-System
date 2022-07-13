@@ -16,6 +16,8 @@ using Parking_System_API.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -74,28 +76,28 @@ namespace Parking_System_API.Controllers
                 //calling APNR model
                 string PlateNum = "";
                 await _messageHub.Clients.All.SendAsync("sendToReact",
-                    new SocketMessage() { model = "plate", status = "loading", terminate = false, message = "plate recognition system started" });
-                Thread VehicleThread = new Thread(() => PlateNum = "ABC123"/*GetVehicleId("http://192.168.1.8:7007/")*/ );
+                    new SocketMessage() { model = "plate", status = "loading", terminate = false, message = "plate recognition system started" , imagePath = "" });
+                Thread VehicleThread = new Thread(() => PlateNum = GetVehicleId("http://127.0.0.1:5000/start"));
 
                 await _messageHub.Clients.All.SendAsync("sendToReact",
-                    new SocketMessage() { model="face", status = "loading" , terminate = false , message = "face recognition system started"});
+                    new SocketMessage() { model="face", status = "loading" , terminate = false , message = "face recognition system started", imagePath = "" });
 
                 //calling the faceModel
 
                 string ParticipantId = "";
-                Thread ParticipantIdThread = new Thread(
-                    () =>
-                    ParticipantId = GetParticipantId("http://127.0.0.1:5000/"));
-                ParticipantIdThread.Start();
+                //Thread ParticipantIdThread = new Thread(
+                //    () =>
+                //    ParticipantId = GetParticipantId("http://127.0.0.1:5000/"));
+                //ParticipantIdThread.Start();
                 VehicleThread.Start();
 
-                ParticipantIdThread.Join();
+                //ParticipantIdThread.Join();
                 VehicleThread.Join();
                 
                 if(ParticipantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("sendToReact",
-                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed " });
+                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
                     return NotFound("face recognition failed");
 
                 }
@@ -108,9 +110,13 @@ namespace Parking_System_API.Controllers
                 else 
                 {
                     await _messageHub.Clients.All.SendAsync("sendToReact",
-                    new SocketMessage() { model = "face", status = "success", terminate = false, message = $"face has been recognized with id :{ParticipantId}" });
+                    new SocketMessage() { model = "face", status = "success", 
+                        terminate = false, message = $"face has been recognized with id :{ParticipantId}",
+                        imagePath = ""
+                    });
                     await _messageHub.Clients.All.SendAsync("sendToReact",
-                    new SocketMessage() { model = "plate", status = "success", terminate = false, message = $"plate has been recognized with number :{PlateNum}" });
+                    new SocketMessage() { model = "plate", status = "success",
+                        terminate = false, message = $"plate has been recognized with number :{PlateNum}", imagePath = Path.Combine(Directory.GetCurrentDirectory(),"plate.jpeg") });
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
@@ -178,6 +184,22 @@ namespace Parking_System_API.Controllers
             byte[] response = client.DownloadData(Url);
             string res = System.Text.Encoding.ASCII.GetString(response);
             JObject json = JObject.Parse(res);
+            //byte[] bytes = Convert.FromBase64String(json["plate"].ToString());
+            //Image image;
+            //using (MemoryStream ms = new MemoryStream(bytes))
+            //{
+            //    image = Image.FromStream(ms);
+            //}
+            //var base64EncodedBytes = System.Convert.FromBase64String(json["plate"].ToString());
+            //var img = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+            byte[] bytes = Convert.FromBase64String(json["plate"].ToString());
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "plate.jpeg");
+            //var stream = new FileStream(filePath, FileMode.Create);
+            MemoryStream ms = new MemoryStream(bytes);
+            Image ret = Image.FromStream(ms);
+            var i2 = new Bitmap(ret);
+            //send i2 to the frontend on sockets
+            i2.Save("plate.jpeg", ImageFormat.Jpeg);
             return json["Id"].ToString();
         }
 
