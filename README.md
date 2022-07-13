@@ -1,1 +1,0 @@
-# Smart-Authenticating-Parking-System

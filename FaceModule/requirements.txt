@@ -1,4 +1,0 @@
-Flask
-Flask-Cors==3.0.9
-textract==1.6.3
-requests
