@@ -9,10 +9,10 @@ def predict_LP(img):
     cnn_model.load_weights(model_path)
     LP = ''
     for symbol in symbols:
-        cv2.imshow('symbol', symbol)
-        cv2.waitKey(0)
+        # cv2.imshow('symbol', symbol)
+        # cv2.waitKey(0)
         LP += (predict(cnn_model, symbol))
-        print(LP)
-    cv2.destroyAllWindows()
+        # print(LP)
+    # cv2.destroyAllWindows()
     return LP
     

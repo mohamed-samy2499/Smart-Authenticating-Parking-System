@@ -25,7 +25,7 @@ app.config["CORS_HEADERS"] = "Content-Type"
 app.config['JSON_SORT_KEYS'] = False
 
 FLAGS = Flags('tf', './checkpoints/tiny-custom-416', 416,
-            True, 'yolov4', './data/LP8_trimmed.mp4',
+            True, 'yolov4', './data/LP7_trimmed.mp4',
             None, 'XVID', 0.45, 0.25, False)
 # FLAGS = Flags('tf', './checkpoints/latest-416', 416,
 #             False, 'yolov4', './data/LP.mp4',
@@ -47,12 +47,15 @@ def make_pred(batch_data):
 
 @app.route('/camFeed', methods=['POST'])
 def cam_feed():
+    # print(request)
+    global video_path
     video_path = request.form.get('address')
     return jsonify({"Message": video_path})
 
 @app.route('/start', methods=['GET'])
 def start():
     try:
+        print(video_path)
         vid = cv2.VideoCapture(int(video_path))
     except:
         vid = cv2.VideoCapture(video_path)
@@ -95,13 +98,13 @@ def start():
             print("Start of session with counter : {}".format(counter))
             counter = counter + 1
             if counter == 2:
-                cv2.imshow('frame', frame)
-                cv2.waitKey(0)
+                # cv2.imshow('frame', frame)
+                # cv2.waitKey(0)
                 pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
                 # frame = utils.draw_bbox(frame, pred_bbox)
                 cropped_plate = utils.save_number_plate(frame, pred_bbox,os.getcwd(),"my_plate.jpeg")
-                cv2.imshow('cropped_plate', cropped_plate)
-                cv2.waitKey(0)
+                # cv2.imshow('cropped_plate', cropped_plate)
+                # cv2.waitKey(0)
                 LP_reading = predict_LP(cropped_plate)
                 with open(os.path.join(os.getcwd(),"my_plate.jpeg"), mode='rb') as file:
                     img = base64.b64encode(file.read()).decode('utf-8')

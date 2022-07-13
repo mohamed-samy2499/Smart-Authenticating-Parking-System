@@ -23,6 +23,8 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using System.Net.Http;
 
 namespace Parking_System_API.Controllers
 {
@@ -38,8 +40,9 @@ namespace Parking_System_API.Controllers
         private readonly IParticipantRepository participantRepository;
         private readonly IVehicleRepository vehicleRepository;
         private readonly IParkingTransactionRepository parkingTransactionRepository;
-
-        public TerminalsController(IHubContext<MessageHub> messageHub, IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
+        private readonly IWebHostEnvironment webHostEnvironment;
+        private static readonly HttpClient client1 = new HttpClient();
+        public TerminalsController(IWebHostEnvironment webHostEnvironment, IHubContext<MessageHub> messageHub, IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
         {
             this.gateRepository = gateRepository;
             this.cameraRepository = cameraRepository;
@@ -48,6 +51,7 @@ namespace Parking_System_API.Controllers
             this.vehicleRepository = vehicleRepository;
             this.parkingTransactionRepository = parkingTransactionRepository;
             _messageHub = messageHub;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
 
@@ -77,25 +81,31 @@ namespace Parking_System_API.Controllers
                 string PlateNum = "";
                 await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "plate", status = "loading", terminate = false, message = "plate recognition system started" , imagePath = "" });
-                Thread VehicleThread = new Thread(() => PlateNum = GetVehicleId("http://127.0.0.1:5000/start"));
-
+                Thread VehicleThread = new Thread(() => PlateNum = "ABC123"/*GetVehicleIdAsync("http://127.0.0.1:5000/start")*/);
+                
                 await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model="face", status = "loading" , terminate = false , message = "face recognition system started", imagePath = "" });
 
                 //calling the faceModel
 
-                JObject ParticipantId = (JObject)"";
+                List<string> ParticipantInfo = new List<string>();
                 Thread ParticipantIdThread = new Thread(
                     () =>
-                    ParticipantId = GetParticipantId("http://127.0.0.1:5000/"));
+                    ParticipantInfo = GetParticipantId("http://127.0.0.1:5000/"));
                 ParticipantIdThread.Start();
                 VehicleThread.Start();
 
                 ParticipantIdThread.Join();
                 VehicleThread.Join();
-                var face_path = (string)ParticipantId["face"];
-                var participantId = (string)ParticipantId["Id"];
-                if(participantId == "InternalError")
+                var ParticipantId = ParticipantInfo[1];
+
+                var face_path = ParticipantInfo[0];
+                Image face_image = Image.FromFile(face_path);
+                var i3 = new Bitmap(face_image);
+                //send i2 to the frontend on sockets
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "face.jpeg");
+                i3.Save(filePath, ImageFormat.Jpeg);
+                if (ParticipantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
@@ -103,26 +113,28 @@ namespace Parking_System_API.Controllers
 
                 }
                     
-                else if (participantId == "unknown")
+                else if (ParticipantId == "unknown")
                     return NotFound(new { Error = "ParticipantId is unknown" });
 
                 else if (ParticipantId == null)
                     return BadRequest(new { Error = "ParticipantId is null" });
                 else 
                 {
+                    var filePath_plate = "https://localhost:44380/face_verify/face.jpeg";
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "face", status = "success", 
                         terminate = false, message = $"face has been recognized with id :{ParticipantId}",
-                        imagePath = face_path
+                        imagePath = filePath_plate
                     });
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "plate", status = "success",
-                        terminate = false, message = $"plate has been recognized with number :{PlateNum}", imagePath = Path.Combine(Directory.GetCurrentDirectory(),"plate.jpeg") });
+                        terminate = false, message = $"plate has been recognized with number :{PlateNum}", imagePath = ""
+                    });
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
 
-                Participant Person = await participantRepository.GetParticipantAsyncByID(participantId, true);
+                Participant Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true);
 
                 if (car == null)
                     return NotFound(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
@@ -131,7 +143,7 @@ namespace Parking_System_API.Controllers
                 //checking if Id exists in DB
                 
                 if (Person == null)
-                    return NotFound(new { Error = $"Person with Id {participantId} is not found." });
+                    return NotFound(new { Error = $"Person with Id {ParticipantId} is not found." });
 
 
                 if (Person.Vehicles.Contains(car))
@@ -153,7 +165,7 @@ namespace Parking_System_API.Controllers
                     }
 
                 }
-                return NotFound(new { Error = $"Participant with {participantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
+                return NotFound(new { Error = $"Participant with {ParticipantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
                 }
             }
             catch (Exception ex)
@@ -163,7 +175,7 @@ namespace Parking_System_API.Controllers
 
         }
 
-        private static JObject GetParticipantId(String Url)
+        private static List<string> GetParticipantId(String Url)
         {
             try 
             {
@@ -172,36 +184,45 @@ namespace Parking_System_API.Controllers
             string res = System.Text.Encoding.ASCII.GetString(response);
             JObject json = JObject.Parse(res);
             var face_path = json["face"].ToString();
-            return json;
+            var id = json["Id"].ToString();
+            var list =new List<string>(); 
+            list.Add(face_path);
+            list.Add(id);
+            return list;
 
             }
             catch (Exception ex)
             {
-                return (JObject)$"InternalError";
+                var list = new List<string>();
+                list.Append(ex.Message);
+                return list;
             }
         }
-        private static String GetVehicleId(String Url)
+        private static  string GetVehicleIdAsync(String Url)
         {
+            //var values = new Dictionary<string, string>
+            //{
+            //      { "address", "LP8_trimmed.mp4" }
+            //};
+
+            //var content = new FormUrlEncodedContent(values);
+
+            //var response1 = await client1.PostAsync("http://127.0.0.1:5000/camfeed", content);
+
+            //var responseString = await response1.Content.ReadAsStringAsync();
             WebClient client = new WebClient();
             byte[] response = client.DownloadData(Url);
             string res = System.Text.Encoding.ASCII.GetString(response);
             JObject json = JObject.Parse(res);
-            //byte[] bytes = Convert.FromBase64String(json["plate"].ToString());
-            //Image image;
-            //using (MemoryStream ms = new MemoryStream(bytes))
-            //{
-            //    image = Image.FromStream(ms);
-            //}
-            //var base64EncodedBytes = System.Convert.FromBase64String(json["plate"].ToString());
-            //var img = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+
             byte[] bytes = Convert.FromBase64String(json["plate"].ToString());
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "plate.jpeg");
-            //var stream = new FileStream(filePath, FileMode.Create);
+
             MemoryStream ms = new MemoryStream(bytes);
             Image ret = Image.FromStream(ms);
             var i2 = new Bitmap(ret);
             //send i2 to the frontend on sockets
-            i2.Save("plate.jpeg", ImageFormat.Jpeg);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "plate.jpeg");
+            i2.Save(filePath, ImageFormat.Jpeg);
             return json["Id"].ToString();
         }
 
@@ -237,10 +258,10 @@ namespace Parking_System_API.Controllers
 
                 //calling the faceModel
 
-                string ParticipantId = "";
+                List<string> ParticipantInfo = new List<string>();
                 Thread ParticipantIdThread = new Thread(
                     () =>
-                    ParticipantId = GetParticipantId("http://127.0.0.1:5000/"));
+                    ParticipantInfo = GetParticipantId("http://127.0.0.1:5000/"));
                 ParticipantIdThread.Start();
                 VehicleThread.Start();
 
@@ -248,6 +269,8 @@ namespace Parking_System_API.Controllers
                 VehicleThread.Join();
 
 
+                var ParticipantId = ParticipantInfo[0];
+                var face_path = ParticipantInfo[1];
 
                 Vehicle car = null;
                 Thread SearchCarThread = new Thread(

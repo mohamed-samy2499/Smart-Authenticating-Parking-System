@@ -143,7 +143,7 @@ def save_number_plate(image, bboxes, save_path, image_name):
         # cv2.imshow('cropped_plate', cropped_plate)
         cropped_plate = cv2.cvtColor(cropped_plate, cv2.COLOR_RGB2BGR)
         cv2.imwrite(os.path.join(save_path, image_name), cropped_plate)
-        return image
+        return cropped_plate
 
 def crop_number_plate(image, bboxes):
     image_h, image_w, _ = image.shape
