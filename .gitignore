@@ -15,6 +15,7 @@ FaceModule/aligned_img/
 FaceModule/train_img/
 FaceModule/tmp/
 tmp\ img/
+venv
 
 #BackEnd
 ## Ignore Visual Studio temporary files, build results, and
