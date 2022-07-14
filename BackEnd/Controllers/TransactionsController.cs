@@ -89,7 +89,7 @@ namespace Parking_System_API.Controllers
             }
         }
 
-        [HttpGet("{plateID}"), Authorize(Roles = "participant")]
+        [HttpGet("meCar/{plateID}"), Authorize(Roles = "participant")]
         public async Task<ActionResult<ParkingTransactionAdminResponseModel[]>> GetMeMyVehicleTransactions(String plateID)
         {
             try
