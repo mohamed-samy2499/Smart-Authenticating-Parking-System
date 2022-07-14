@@ -68,7 +68,7 @@ namespace Parking_System_API.Controllers
             }
         }
 
-        [HttpGet("{plateID}"), Authorize(Roles = "admin, operator")]
+        [HttpGet("vehicle/{plateID}"), Authorize(Roles = "admin, operator")]
         public async Task<ActionResult<ParkingTransactionAdminResponseModel[]>> GetVehicleTransactions(String plateID)
         {
             try
@@ -77,6 +77,28 @@ namespace Parking_System_API.Controllers
                 if (transactions == null || transactions.Length == 0)
                 {
                     return NotFound($"No transactions for plate number {plateID} retrieved");
+                }
+
+                var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Error {ex}");
+            }
+
+
+        }
+        [HttpGet("participant/{participantID}"), Authorize(Roles = "admin, operator")]
+        public async Task<ActionResult<ParkingTransactionAdminResponseModel[]>> GetParticipantIDTransactions(String participantID)
+        {
+            try
+            {
+                var transactions = await _transactionRepository.GetAllTransactionsForParticipant(participantID);
+                if (transactions == null || transactions.Length == 0)
+                {
+                    return NotFound($"No transactions for person {participantID} retrieved");
                 }
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
