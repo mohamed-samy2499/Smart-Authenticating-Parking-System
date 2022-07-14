@@ -1,0 +1,1 @@
+export { LicencePlate } from './licencePlate'

@@ -1,0 +1,110 @@
+{
+	"name": "clickguard-platform",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@auth0/auth0-react": "^1.8.0",
+		"@emotion/react": "^11.9.3",
+		"@emotion/styled": "^11.9.3",
+		"@headlessui/react": "^1.4.2",
+		"@heroicons/react": "^1.0.5",
+		"@microsoft/signalr": "^6.0.6",
+		"@mui/icons-material": "^5.8.4",
+		"@mui/lab": "^5.0.0-alpha.89",
+		"@mui/material": "^5.8.6",
+		"@nivo/calendar": "^0.79.1",
+		"@nivo/core": "^0.79.0",
+		"@nivo/funnel": "^0.79.1",
+		"@nivo/line": "^0.79.1",
+		"@nivo/pie": "^0.79.1",
+		"@nivo/sunburst": "^0.79.1",
+		"@popperjs/core": "^2.11.5",
+		"@stripe/react-stripe-js": "^1.7.0",
+		"@stripe/stripe-js": "^1.22.0",
+		"@tailwindcss/forms": "^0.4.0",
+		"@testing-library/jest-dom": "^4.2.4",
+		"@testing-library/react": "^9.3.2",
+		"@testing-library/user-event": "^7.1.2",
+		"@types/jest": "^24.0.0",
+		"@types/node": "^12.0.0",
+		"@types/react": "^17.0.37",
+		"@types/react-dom": "^16.9.0",
+		"@types/ua-parser-js": "^0.7.36",
+		"api-models": "file:../api-models",
+		"axios": "^0.24.0",
+		"clsx": "^1.1.1",
+		"country-data": "^0.0.31",
+		"currency-list": "^1.0.8",
+		"date-fns": "^2.28.0",
+		"joi": "^17.6.0",
+		"lodash": "^4.17.21",
+		"mobx": "^6.4.2",
+		"mobx-react": "^7.3.0",
+		"moment": "^2.29.1",
+		"moment-timezone": "^0.5.34",
+		"react": "^17.0.2",
+		"react-date-range": "^1.4.0",
+		"react-dom": "^17.0.2",
+		"react-icons": "^4.3.1",
+		"react-popper": "^2.3.0",
+		"react-query": "^3.34.12",
+		"react-router-dom": "^6.1.1",
+		"react-scripts": "5.0.0",
+		"react-toastify": "^8.2.0",
+		"timezones-list": "^3.0.1",
+		"typescript": "~4.1.5",
+		"ua-parser-js": "^1.0.2"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject",
+		"storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006 -s public",
+		"win-storybook": "set DISABLE_ESLINT_PLUGIN=true&&  start-storybook -p 6006 -s public",
+		"build-storybook": "build-storybook -s public"
+	},
+	"eslintConfig": {
+		"extends": "react-app",
+		"overrides": [
+			{
+				"files": [
+					"**/*.stories.*"
+				],
+				"rules": {
+					"import/no-anonymous-default-export": "off"
+				}
+			}
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"@storybook/addon-actions": "^6.4.9",
+		"@storybook/addon-essentials": "^6.4.9",
+		"@storybook/addon-links": "^6.4.9",
+		"@storybook/builder-webpack5": "^6.4.9",
+		"@storybook/manager-webpack5": "^6.4.9",
+		"@storybook/node-logger": "^6.4.9",
+		"@storybook/preset-create-react-app": "^4.0.0",
+		"@storybook/react": "^6.4.9",
+		"@types/country-data": "0.0.2",
+		"@types/lodash": "^4.14.181",
+		"@types/react-date-range": "^1.4.3",
+		"@types/tailwindcss": "^3.0.10",
+		"autoprefixer": "^10.4.0",
+		"postcss": "^8.4.5",
+		"tailwindcss": "^3.0.2",
+		"webpack": "^5.65.0"
+	}
+}

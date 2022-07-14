@@ -1,0 +1,13 @@
+.licence-text {
+  width: 40px;
+  height: 30px;
+  margin: 4px;
+  box-sizing: unset;
+}
+.text-field-item .MuiOutlinedInput-root .MuiOutlinedInput-input {
+  box-sizing: border-box;
+}
+
+.licence-container {
+  margin-bottom: 16px;
+}

@@ -1,0 +1,10 @@
+export * from './login-page'
+export * from './user-profile'
+export * from './customers-list'
+export * from './customers-list/customer-table/create-edit-customer'
+export * from './system-users'
+export * from './create-edit-systemUser'
+export * from './control'
+export * from './cars-page'
+export * from './cars-page/create-edit-car'
+

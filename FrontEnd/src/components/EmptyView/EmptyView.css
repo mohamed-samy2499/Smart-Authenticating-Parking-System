@@ -1,0 +1,8 @@
+.empty-view-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	line-height: 2em;
+	height: 300px;
+}
