@@ -1,0 +1,27 @@
+.profile-container {
+  /* text-align: center;
+  width: 300px;
+  margin: 0 auto; */
+
+  /* max-width: 500px; */
+}
+.card-container {
+  text-align: center;
+  width: 50%;
+  margin: 0 auto;
+  min-height: 700px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px;
+
+  border: 3px solid var(--primary);
+  color: var(--text-inverse) !important;
+  background-color: var(--primary) !important;
+
+  /* color: var(--text) !important; */
+  /* background-color: var(--white) !important; */
+}

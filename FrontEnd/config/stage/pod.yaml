@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform
+  labels:
+    app: platform
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: platform
+  strategy: 
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: platform
+    spec:
+      containers:
+      - name: platform
+        image: gcr.io/clickguard-app/cg-platform:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "50m"
+          limits:
+            memory: "200Mi"
+            cpu: "100m"
+        env:
+        - name: DEPLOY_STARTED_AT
+          value: 'DEPLOY_TIMESTAMP'
+        ports:
+        - name: platform-port
+          containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: platform-port
+          initialDelaySeconds: 300
+          failureThreshold: 3
+          periodSeconds: 10
+        # startupProbe:
+        #   httpGet:
+        #     path: /
+        #     port: tracker-port
+        #   failureThreshold: 30
+        #   periodSeconds: 10

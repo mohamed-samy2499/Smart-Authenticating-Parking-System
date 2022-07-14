@@ -1,0 +1,32 @@
+{
+	// "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m",
+	"editor.insertSpaces": false,
+	"editor.formatOnSave": true,
+	"editor.tabSize": 2,
+	"editor.suggestSelection": "first",
+	// "javascript.format.semicolons": "remove",
+	"javascript.format.enable": false,
+	// "[typescript]": {
+	// 	"editor.defaultFormatter": "vscode.typescript-language-features"
+	// },
+	"editor.codeActionsOnSave": {
+		"source.fixAll": true,
+		"source.fixAll.eslint": true,
+	},
+	"files.autoSave": "onFocusChange",
+	"explorer.confirmDragAndDrop": false,
+	"javascript.updateImportsOnFileMove.enabled": "always",
+	"files.exclude": {
+		"**/.classpath": true,
+		"**/.project": true,
+		"**/.settings": true,
+		"**/.factorypath": true
+	},
+	// "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.updateImportsOnFileMove.enabled": "always",
+	"typescript.preferences.quoteStyle": "single",
+	// "typescript.format.semicolons": "remove",
+	"eslint.alwaysShowStatus": true,
+	"editor.detectIndentation": false,
+}

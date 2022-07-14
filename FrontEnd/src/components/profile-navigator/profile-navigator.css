@@ -1,0 +1,37 @@
+/* Links */
+.Main-menu-container a {
+  text-decoration: none;
+  color: hsl(257, 7%, 62%);
+}
+.Main-menu-container a:hover {
+  color: #690ad2;
+}
+.Main-menu-container a:focus {
+  color: #690ad2;
+}
+
+.Main-menu-container {
+  text-align: center;
+}
+.menu-item {
+  padding-right: 15px;
+}
+.menu-button {
+  height: 65px;
+  width: 230px;
+  background: transparent linear-gradient(90deg, #680dd1 0%, #c93ccc 100%) 0% 0%
+    no-repeat padding-box;
+  opacity: 1;
+  border: none;
+  color: white;
+}
+
+.header-container {
+  /* background-image: url("/src/assets/Homepage/orbits.svg"); */
+  background-position: right top;
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: 1426px 900px; /* Resize the background image to cover the entire container */
+  min-height: 900px;
+  padding: -60px;
+  padding-top: -300px;
+}

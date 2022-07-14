@@ -1,0 +1,41 @@
+import { MailIcon } from '@heroicons/react/solid';
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+import React from 'react';
+import { ButtonColor, ButtonSizes, ButtonVariants, GButton } from '../components/basic-blocks/g-button';
+import { withProvider } from './provider';
+
+export default {
+	title: 'Common/Gbutton',
+	component: GButton,
+	decorators: [withProvider],
+} as ComponentMeta<typeof GButton>;
+
+const Template: ComponentStory<typeof GButton> = args => <GButton {...args} />
+
+export const Contained = Template.bind({});
+Contained.args = {
+	label: 'Contained Variant - Default',
+	variant: ButtonVariants.CONTAINED,
+	size: ButtonSizes.MEDIUM,
+	color: ButtonColor.PRIMARY,
+	icon: MailIcon,
+	className: "bg-indigo-600"
+};
+
+export const Outlined = Template.bind({});
+Outlined.args = {
+	label: 'Outlined variant',
+	variant: ButtonVariants.OUTLINED,
+	size: ButtonSizes.MEDIUM,
+	color: ButtonColor.PRIMARY,
+	icon: MailIcon
+};
+
+export const Text = Template.bind({});
+Text.args = {
+	label: 'Text variant',
+	variant: ButtonVariants.TEXT,
+	size: ButtonSizes.MEDIUM,
+	color: ButtonColor.PRIMARY,
+	icon: MailIcon
+};
