@@ -81,7 +81,7 @@ namespace Parking_System_API.Controllers
                 string PlateNum = "";
                 await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "plate", status = "loading", terminate = false, message = "plate recognition system started" , imagePath = "" });
-                Thread VehicleThread = new Thread(() => PlateNum = "ABC123"/*GetVehicleIdAsync("http://127.0.0.1:5000/start")*/);
+                Thread VehicleThread = new Thread(() => PlateNum = GetVehicleIdAsync("http://127.0.0.1:5000/start"));
                 
                 await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model="face", status = "loading" , terminate = false , message = "face recognition system started", imagePath = "" });
@@ -91,7 +91,7 @@ namespace Parking_System_API.Controllers
                 List<string> ParticipantInfo = new List<string>();
                 Thread ParticipantIdThread = new Thread(
                     () =>
-                    ParticipantInfo = GetParticipantId("http://127.0.0.1:5000/"));
+                    ParticipantInfo = GetParticipantId("http://127.0.0.1:8500/"));
                 ParticipantIdThread.Start();
                 VehicleThread.Start();
 
@@ -120,15 +120,16 @@ namespace Parking_System_API.Controllers
                     return BadRequest(new { Error = "ParticipantId is null" });
                 else 
                 {
-                    var filePath_plate = "https://localhost:44380/face_verify/face.jpeg";
+                    var filePath_face = "https://localhost:44380/face_verify/face.jpeg";
+                    var filePath_plate = "https://localhost:44380/face_verify/plate.jpeg";
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "face", status = "success", 
                         terminate = false, message = $"face has been recognized with id :{ParticipantId}",
-                        imagePath = filePath_plate
+                        imagePath = filePath_face
                     });
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "plate", status = "success",
-                        terminate = false, message = $"plate has been recognized with number :{PlateNum}", imagePath = ""
+                        terminate = false, message = $"plate has been recognized with number :{PlateNum}", imagePath = filePath_plate
                     });
                     await _messageHub.Clients.All.SendAsync("sendToReact",
                     new SocketMessage() { model = "", status = "", terminate = true, message = "" });
@@ -251,51 +252,85 @@ namespace Parking_System_API.Controllers
                 //gate is closed
                 //calling APNR model
 
+                //string PlateNum = "";
+                ///*
+                // * 
+                // * 
+                // */
+                //Thread VehicleThread = new Thread(() => PlateNum = "ABC123");
+
+
+
+                ////calling the faceModel
+
+                //List<string> ParticipantInfo = new List<string>();
+                //Thread ParticipantIdThread = new Thread(
+                //    () =>
+                //    ParticipantInfo = GetParticipantId("http://127.0.0.1:5000/"));
+                //ParticipantIdThread.Start();
+                //VehicleThread.Start();
+
+                //ParticipantIdThread.Join();
+                //VehicleThread.Join();
+
+
+                //var ParticipantId = ParticipantInfo[0];
+                //var face_path = ParticipantInfo[1];
+
+                //Vehicle car = null;
+                //Thread SearchCarThread = new Thread(
+                //    async () => car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum));
+
+                //Participant Person = null;
+                //Thread SearchParticipantThread = new Thread(
+                //    async () => Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true)
+                //    );
+                //SearchCarThread.Start();
+                //SearchParticipantThread.Start();
+
+                //SearchCarThread.Join();
+                //SearchParticipantThread.Join();
                 string PlateNum = "";
-                /*
-                 * 
-                 * 
-                 */
-                Thread VehicleThread = new Thread(() => PlateNum = "ABC123");
+                await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "plate", status = "loading", terminate = false, message = "plate recognition system started", imagePath = "" });
+                Thread VehicleThread = new Thread(() => PlateNum = GetVehicleIdAsync("http://127.0.0.1:5000/start"));
 
-
+                await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "face", status = "loading", terminate = false, message = "face recognition system started", imagePath = "" });
 
                 //calling the faceModel
 
                 List<string> ParticipantInfo = new List<string>();
                 Thread ParticipantIdThread = new Thread(
                     () =>
-                    ParticipantInfo = GetParticipantId("http://127.0.0.1:5000/"));
+                    ParticipantInfo = GetParticipantId("http://127.0.0.1:8500/"));
                 ParticipantIdThread.Start();
                 VehicleThread.Start();
 
                 ParticipantIdThread.Join();
                 VehicleThread.Join();
+                var ParticipantId = ParticipantInfo[1];
 
+                var face_path = ParticipantInfo[0];
+                Image face_image = Image.FromFile(face_path);
+                var i3 = new Bitmap(face_image);
+                //send i2 to the frontend on sockets
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "face.jpeg");
+                i3.Save(filePath, ImageFormat.Jpeg);
+                if (ParticipantId == "InternalError")
+                {
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+                    return NotFound("face recognition failed");
 
-                var ParticipantId = ParticipantInfo[0];
-                var face_path = ParticipantInfo[1];
+                }
 
-                Vehicle car = null;
-                Thread SearchCarThread = new Thread(
-                    async () => car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum));
-
-                Participant Person = null;
-                Thread SearchParticipantThread = new Thread(
-                    async () => Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true)
-                    );
-                SearchCarThread.Start();
-                SearchParticipantThread.Start();
-
-                SearchCarThread.Join();
-                SearchParticipantThread.Join();
-
-                if (ParticipantId == null)
+                else if (ParticipantId == null)
                     return BadRequest(new { Error = "ParticipantId is null" });
-                if (ParticipantId == "unknown")
+                else if (ParticipantId == "unknown")
                 //short term
                 //user should move his head in front of camera for few seconds when detection starts
-                
+
                 {
                     var short_term_vehicle = new Vehicle { PlateNumberId = PlateNum };
                     ICollection<Vehicle> short_term_vehicles = new List<Vehicle>
@@ -303,79 +338,80 @@ namespace Parking_System_API.Controllers
                         short_term_vehicle
                     };
 
-                    var short_term_participant = new ShortTerm 
+                    var short_term_participant = new ShortTerm
                     {
-                        Vehicle = short_term_vehicle ,
+                        Vehicle = short_term_vehicle,
                         Id = Guid.NewGuid().ToString(),
                         DoProvideVideo = false,
                         DoDetected = false
-                        
+
                     };
                     //Capture A few seconds video then upload it to face model to create the classifier for the current short term user
                     return NotFound(new { Error = "ParticipantId is unknown" });
                 }
-
-                //checking if Id exists in DB
-                if (Person == null)
-                    return NotFound(new { Error = $"Person with Id {ParticipantId} is not found." });
-
-                //1- Driver is saved on car
-                //2- Driver enter is the same as exit
-
-                if (Person.Vehicles.Contains(car))
+                else
                 {
-                    //check subscription
-                    DateTime Timenow = DateTime.Now;
-                    if (Timenow > car.StartSubscription && Timenow < car.EndSubscription)
+                    var filePath_face = "https://localhost:44380/face_verify/face.jpeg";
+                    var filePath_plate = "https://localhost:44380/face_verify/plate.jpeg";
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage()
                     {
-                        //Parking Transaction
-                        parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = false });
-                        if (!await parkingTransactionRepository.SaveChangesAsync())
+                        model = "face",
+                        status = "success",
+                        terminate = false,
+                        message = $"face has been recognized with id :{ParticipantId}",
+                        imagePath = filePath_face
+                    });
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage()
+                    {
+                        model = "plate",
+                        status = "success",
+                        terminate = false,
+                        message = $"plate has been recognized with number :{PlateNum}",
+                        imagePath = filePath_plate
+                    });
+                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    new SocketMessage() { model = "", status = "", terminate = true, message = "" });
+                    Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
+
+                    Participant Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true);
+
+                    if (car == null)
+                        return NotFound(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
+
+
+                    //checking if Id exists in DB
+
+                    if (Person == null)
+                        return NotFound(new { Error = $"Person with Id {ParticipantId} is not found." });
+
+
+                    if (Person.Vehicles.Contains(car))
+                    {
+                        //check subscription
+                        DateTime Timenow = DateTime.Now;
+                        if (Timenow > car.StartSubscription && Timenow < car.EndSubscription)
                         {
-                            return BadRequest("Exit Transaction is not completed");
-                        }
-                        gate.State = true;
-                        return Ok(new { Success = "Access Allowed; Gate is open" });
-
-                    }
-                    else
-                    {
-                        return Unauthorized(new { Error = "Subscription is not valid." });
-                    }
-
-
-                }else
-                {
-                    ParkingTransaction[] transaction = await parkingTransactionRepository.GetAllTransactionsForParticipantAndVehicle(ParticipantId, PlateNum) ;
-                    if (transaction == null || transaction.Length == 0)
-                    {
-                        return Unauthorized(new { Error = "Not allowed to exit with car." });
-                    }
-
-                    else
-                    {
-                        var t = transaction[0];
-                        if(t.isEnter) //Enter Direction - Casual
-                        {
-                            DateTime Timenow = DateTime.Now;
+                            //Parking Transaction
                             parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = false });
                             if (!await parkingTransactionRepository.SaveChangesAsync())
                             {
                                 return BadRequest("Exit Transaction is not completed");
                             }
+                            gate.State = true;
+                            return Ok("Exit is Allowed");
 
-                            var Duration = Timenow - t.DateTimeTransaction ;
-
-                            //Calculate Duration and Amount of Money
-
-                            return Ok(new { Success = "Access Allowed; Gate is open", Duration = $"{Duration}", Amount= $"{Duration * 2}" });
                         }
 
-                        return Unauthorized(new { Error = $"no enter transaction with you and the car {PlateNum}." });
-                    }
-                }
+                        else
+                        {
+                            return Unauthorized(new { Error = "Subscription is not valid." });
+                        }
 
-               
+                    }
+                    return NotFound(new { Error = $"Participant with {ParticipantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
+                }
             }
             catch (Exception ex)
             {
