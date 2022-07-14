@@ -25,7 +25,7 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
             _context.Remove(entity);
         }
 
-        public async Task<ParkingTransaction[]> GetAllTransactions(bool getVehicles = false, bool getParticipants = false, bool getTerminals = false)
+        public async Task<ParkingTransaction[]> GetAllTransactions(bool getVehicles = false, bool getParticipants = false)
         {
             IQueryable<ParkingTransaction> query = _context.ParkingTransactions;
 
@@ -40,17 +40,14 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
                 query = query.Include(c => c.participant);
             }
 
-            if (getTerminals)
-            {
-                query = query.Include(c => c.terminal);
-            }
+            
             // Order It
             query = query.OrderByDescending(c => c.DateTimeTransaction);
 
             return await query.ToArrayAsync();
         }
 
-        public async Task<ParkingTransaction[]> GetAllTransactionsForParticipant(string ParticipantId, bool getVehicles = false, bool getTerminals = false)
+        public async Task<ParkingTransaction[]> GetAllTransactionsForParticipant(string ParticipantId, bool getVehicles = false)
         {
             IQueryable<ParkingTransaction> query = _context.ParkingTransactions;
 
@@ -61,18 +58,13 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
             }
 
 
-            if (getTerminals)
-            {
-                query = query.Include(c => c.terminal);
-            }
-
             // Order It
             query = query.Where(c => c.ParticipantId == ParticipantId);
 
             return await query.ToArrayAsync();
         }
 
-        public async Task<ParkingTransaction[]> GetAllTransactionsForVehicle(string VehicleId, bool getParticipants = false, bool getTerminals = false)
+        public async Task<ParkingTransaction[]> GetAllTransactionsForVehicle(string VehicleId, bool getParticipants = false)
         {
             IQueryable<ParkingTransaction> query = _context.ParkingTransactions;
 
@@ -83,10 +75,7 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
             }
 
 
-            if (getTerminals)
-            {
-                query = query.Include(c => c.terminal);
-            }
+            
 
             // Order It
             query = query.Where(c => c.PlateNumberId == VehicleId);
@@ -94,15 +83,10 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
             return await query.ToArrayAsync();
         }
 
-        public async Task<ParkingTransaction[]> GetAllTransactionsForParticipantAndVehicle(string ParticipantId, string VehicleId, bool getTerminals = false)
+        public async Task<ParkingTransaction[]> GetAllTransactionsForParticipantAndVehicle(string ParticipantId, string VehicleId)
         {
             IQueryable<ParkingTransaction> query = _context.ParkingTransactions;
 
-
-            if (getTerminals)
-            {
-                query = query.Include(c => c.terminal);
-            }
 
             // Order It
             query = query.Where(c => c.PlateNumberId == VehicleId && c.ParticipantId == ParticipantId).OrderByDescending(o => o.DateTimeTransaction);
@@ -110,17 +94,17 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
             return await query.ToArrayAsync();
         }
 
-        public async Task<ParkingTransaction> GetTransaction(DateTime dateTime, string participantId, string vehicleId, int terminalId)
+        public async Task<ParkingTransaction> GetTransaction(DateTime dateTime, string participantId, string vehicleId)
         {
             IQueryable<ParkingTransaction> query = _context.ParkingTransactions;
 
             // Order It
-            query = query.Where(c => c.ParticipantId == participantId && c.PlateNumberId == vehicleId && c.TerminalId == terminalId && c.DateTimeTransaction==dateTime);
+            query = query.Where(c => c.ParticipantId == participantId && c.PlateNumberId == vehicleId && c.DateTimeTransaction==dateTime);
 
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<ParkingTransaction[]> GetTransactionsByDateTime(DateTime dateTime, bool getVehicles = false, bool getParticipants = false, bool getTerminals = false)
+        public async Task<ParkingTransaction[]> GetTransactionsByDateTime(DateTime dateTime, bool getVehicles = false, bool getParticipants = false)
         {
             IQueryable<ParkingTransaction> query = _context.ParkingTransactions;
 
@@ -135,10 +119,6 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
                 query = query.Include(c => c.participant);
             }
 
-            if (getTerminals)
-            {
-                query = query.Include(c => c.terminal);
-            }
             query = query.Where(c => c.DateTimeTransaction == dateTime);
             // Order It
             query = query.OrderByDescending(c => c.DateTimeTransaction);
@@ -146,7 +126,7 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
             return await query.ToArrayAsync();
         }
 
-        public async Task<ParkingTransaction[]> GetTransactionsByDateTimeRange(DateTime StartdateTime, DateTime EnddateTime, bool getVehicles = false, bool getParticipants = false, bool getTerminals = false)
+        public async Task<ParkingTransaction[]> GetTransactionsByDateTimeRange(DateTime StartdateTime, DateTime EnddateTime, bool getVehicles = false, bool getParticipants = false)
         {
             IQueryable<ParkingTransaction> query = _context.ParkingTransactions;
 
@@ -161,10 +141,6 @@ namespace Parking_System_API.Data.Repositories.ParkingTransactionR
                 query = query.Include(c => c.participant);
             }
 
-            if (getTerminals)
-            {
-                query = query.Include(c => c.terminal);
-            }
             query = query.Where(c => c.DateTimeTransaction <= EnddateTime && c.DateTimeTransaction >= StartdateTime );
             // Order It
             query = query.OrderByDescending(c => c.DateTimeTransaction);

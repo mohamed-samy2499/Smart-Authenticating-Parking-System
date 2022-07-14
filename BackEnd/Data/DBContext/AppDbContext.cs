@@ -58,7 +58,7 @@ namespace Parking_System_API.Data.DBContext
 
             mb.Entity<Vehicle>().HasKey(p => new { p.PlateNumberId });
             mb.Entity<Terminal>().HasKey(p => new { p.Id });
-            mb.Entity<ParkingTransaction>().HasKey(p => new { p.ParticipantId , p.PlateNumberId, p.TerminalId, p.DateTimeTransaction});
+            mb.Entity<ParkingTransaction>().HasKey(p => new { p.ParticipantId , p.PlateNumberId, p.DateTimeTransaction});
             var salt = HashingClass.GenerateSalt();
             mb.Entity<SystemUser>().HasData(
                 new SystemUser {

@@ -152,9 +152,13 @@ namespace Parking_System_API.Controllers
                     DateTime Timenow = DateTime.Now;
                     if (Timenow > car.StartSubscription && Timenow < car.EndSubscription)
                     {
-                        //Parking Transaction
-
-                        gate.State = true;
+                            //Parking Transaction
+                        parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = true });
+                            if (!await parkingTransactionRepository.SaveChangesAsync())
+                            {
+                                return BadRequest("Enter Transaction is not completed");
+                            }
+                            gate.State = true;
                         return Ok("Access Allowed; Gate is being open");
 
                     }
@@ -325,7 +329,11 @@ namespace Parking_System_API.Controllers
                     if (Timenow > car.StartSubscription && Timenow < car.EndSubscription)
                     {
                         //Parking Transaction
-
+                        parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = false });
+                        if (!await parkingTransactionRepository.SaveChangesAsync())
+                        {
+                            return BadRequest("Exit Transaction is not completed");
+                        }
                         gate.State = true;
                         return Ok(new { Success = "Access Allowed; Gate is open" });
 
@@ -347,10 +355,16 @@ namespace Parking_System_API.Controllers
                     else
                     {
                         var t = transaction[0];
-                        if(t.terminal.Direction) //Enter Direction
+                        if(t.isEnter) //Enter Direction - Casual
                         {
+                            DateTime Timenow = DateTime.Now;
+                            parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = false });
+                            if (!await parkingTransactionRepository.SaveChangesAsync())
+                            {
+                                return BadRequest("Exit Transaction is not completed");
+                            }
 
-                            var Duration = DateTime.Now - t.DateTimeTransaction ;
+                            var Duration = Timenow - t.DateTimeTransaction ;
 
                             //Calculate Duration and Amount of Money
 

@@ -22,7 +22,7 @@ namespace Parking_System_API.Data.Entities
 
         //public virtual Camera FRCamera { get; set; }
         //public virtual Camera LPCamera { get; set; }
-        //public virtual Gate Gate { get; set; }
-        public virtual ICollection<ParkingTransaction> ParkingTransactions { get; set; }
+        ////public virtual Gate Gate { get; set; }
+        //public virtual ICollection<ParkingTransaction> ParkingTransactions { get; set; }
     }
 }
