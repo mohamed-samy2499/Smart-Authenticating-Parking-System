@@ -19,18 +19,17 @@ export const Control =  observer((props: any) =>{
 			face:{img:undefined,info:'',status:'idle'},
 			plate:{img:undefined,info:'',status:'idle'},
 			status:false,
+			message:''
 		}
 	)
-
-	const [exitPlate,setExitPlate] = useState<string|undefined>(undefined)
-	const [exitFace,setExitFace] = useState<string|undefined>(undefined)
-
-
-	const [enteranceGateStatus,setEnteranceGateStatus] = useState(false)
-	const [exitGateStatus,setExitGateStatus] = useState(false)
-
-
-	console.log('enteranceGate',enteranceGate)
+	const [exitGate,setExitGate] = useState<any>(
+		{
+			face:{img:undefined,info:'',status:'idle'},
+			plate:{img:undefined,info:'',status:'idle'},
+			status:false,
+			message:''
+		}
+	)
 	return (
 		<>
 			<PageHeader 
@@ -40,14 +39,14 @@ export const Control =  observer((props: any) =>{
 				<div className='flex-1'>
 					<GSection
 						title='Enterance Gate Control'
-						subtitle={<div className={`bg-${enteranceGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-20`}>{enteranceGateStatus?'Opened':'Closed'}</div>}
+						subtitle={<div className={`bg-${enteranceGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-20`}>{enteranceGate.status?'Opened':'Closed'}</div>}
 						actions={	
 							<GButton
 								size='sm'
 								label='Start Detection'
 								variant='contained'
 								color='primary'
-								onClick={()=>{StartEnteranceDetection()}}
+								onClick={()=>{startEnteranceDetection()}}
 							/>
 						}
 					>
@@ -85,6 +84,7 @@ export const Control =  observer((props: any) =>{
 								</div>
 							)}
 						</div>
+
 						{/* Plate Section */}
 						<div className='mt-12 bg-warning-100 text-primary-900 p-4 rounded-md'>
 							<h1 className=' font-bold text-2xl mb-6 bg-white inline-flex p-2 rounded-md text-primary-400'>Plate module </h1>
@@ -109,20 +109,25 @@ export const Control =  observer((props: any) =>{
 									<div className='font-bold'>
 									Current Licence pic: 
 									</div>
-									<div className='w-28'>
+									{enteranceGate.plate.img?<div className='w-28'>
 										<img src={enteranceGate.plate.img} alt="" />
-									</div>
+									</div>:'N/A'}
 								</div>
 							)}
-						</div>
-
-					
+						</div>		
 					</GSection>
 				</div>
+
+
+
+
+
+
+				{/* EXIT GATE Section */}
 				<div className='flex-1'>
 					<GSection
 						title='Exit Gate Control'
-						subtitle={<div className={`bg-${exitGateStatus?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-20`}>{exitGateStatus?'Opened':'Closed'}</div>}
+						subtitle={<div className={`bg-${exitGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-20`}>{exitGate.status?'Opened':'Closed'}</div>}
 						actions={
 							<GButton
 								size='sm'
@@ -133,65 +138,97 @@ export const Control =  observer((props: any) =>{
 							/>
 						}
 					>
-						{true && (
-							<div className='flex justify-start items-center gap-4'>
-								<div className=''>
-									Current Licence pic: 
+						{/* Face Section */}
+						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
+							<h1 className=' font-bold text-2xl mb-6 bg-white inline-flex p-2 rounded-md text-primary-400'>Face module </h1>
+							<div className='flex justify-start items-center gap-2'>
+								<div className='font-bold'>
+									Face Info: 
 								</div>
-								<div className='w-28'>
-									<img src={exitPlate} alt="" />
+								<div >
+									{exitGate.face.info ||'Idle'}
 								</div>
 							</div>
-						)}
-						{true && (
-							<div className='flex justify-start items-center gap-4'>
-								<div className=''>
+							<div className='flex justify-start items-center gap-2'>
+								<div className='font-bold'>
+									Status: 
+								</div>
+								<div >
+									{handleStatus(exitGate.face.status)}
+								</div>
+							</div>
+							{true && (
+								<div className='flex justify-start items-center gap-4'>
+									<div className='font-bold'>
 									Current Photo detected: 
+									</div>
+									<div className='w-28'>
+										<img
+											className={'inline-block h-10 w-10 rounded-full border-2 border-gray-300'}
+											src={exitGate.face.img || 'https://eu.ui-avatars.com/api/?name=UknownPerson'} alt='user photo'
+										/>
+									</div>
 								</div>
-								<div className='w-28'>
-									<img
-										className={'inline-block h-16 w-16 rounded-full border-2 border-gray-300'}
-										src={exitFace || 'https://eu.ui-avatars.com/api/?name=UknownPerson'} alt='user photo'
-									/>
+							)}
+						</div>
+						
+						{/* Plate Section */}
+						<div className='mt-12 bg-warning-100 text-primary-900 p-4 rounded-md'>
+							<h1 className=' font-bold text-2xl mb-6 bg-white inline-flex p-2 rounded-md text-primary-400'>Plate module </h1>
+							<div className='flex justify-start items-center gap-2'>
+								<div className='font-bold'>
+									Plate Info: 
+								</div>
+								<div >
+									{exitGate.plate.info ||'Idle'}
 								</div>
 							</div>
-						)}
+							<div className='flex justify-start items-center gap-2'>
+								<div className='font-bold'>
+									Status: 
+								</div>
+								<div >
+									{handleStatus(exitGate.plate.status)}
+								</div>
+							</div>
+							{true && (
+								<div className='flex justify-start items-center gap-2 mt-2'>
+									<div className='font-bold'>
+										Current Licence pic: 
+									</div>
+									{exitGate.plate.img?<div className='w-28'>
+										<img src={exitGate.plate.img} alt="" />
+									</div>:'N/A'}
+								</div>
+							)}
+						</div>		
 					</GSection>
 				</div>
 			</div>
 		</>
 	)
-	async function StartEnteranceDetection() {
+
+
+
+	async function startEnteranceDetection() {
 		try {
-			await connectionTrail()
-			const response = await http.post('Terminals/CarEntry/1')
-			const enteranceResponse = response.data
+			await enteranceGateSocket()
+			await http.post('Terminals/CarEntry/1')
 		} catch (error) {
 			console.log(error)
 		}
 	}
-		
+	
 	async function startExitDetection() {
 		try {
-			const response = await http.post('Terminals/CarExit/2')
-			const enteranceResponse = response.data
+			await exitGateSocket()
+			await http.post('Terminals/CarExit/2')
 		} catch (error) {
 			console.log(error)
 		}
 	}
 
-	async function departureGate(id: string) {
-		try {
-			const response = await http.post(`Terminals/CarDeparture/${id}`)
-			const enteranceResponse = response.data
-		} catch (error) {
-			console.log(error)
-		}
-	}
-		
-		
-		
-	async function connectionTrail(){
+	async function enteranceGateSocket(){
 		try{
 			const connectionq = new HubConnectionBuilder()
 				.withUrl(`${process.env.REACT_APP_SERVER_URL}message`)
@@ -225,9 +262,50 @@ export const Control =  observer((props: any) =>{
 						}
 					))
 				}
-				if(res.terminate){
-					connectionq.stop()
+				if(res.model==='gate'){setEnteranceGate((prevState:any)=>({...prevState,status:res.status,message:res.message}))}
+				if(res.terminate){connectionq.stop()}
+			})
+		}catch(e){
+			console.log(e)
+		}
+	}
+
+	async function exitGateSocket(){
+		try{
+			const connectionq = new HubConnectionBuilder()
+				.withUrl(`${process.env.REACT_APP_SERVER_URL}message`)
+				.configureLogging(LogLevel.Information)
+				.build()
+			await connectionq.start()
+			setConnection(connectionq)
+	
+			connectionq.on('exitGateDetection', (res) => {
+				if(res.model==='face'){
+					console.log('entered face enteranceGate',res)
+					setEnteranceGate((prevState:any)=>(
+						{...prevState,
+							face:{...prevState.face,
+								img:res.imagePath ,
+								info:res.message,
+								status:res.status
+							}
+						}
+					))
 				}
+				if(res.model==='plate'){
+					console.log('entered plate enteranceGate',res)
+					setEnteranceGate((prevState:any)=>(
+						{...prevState,
+							plate:{...prevState.plate,
+								img:res.imagePath ,
+								info:res.message,
+								status:res.status
+							}
+						}
+					))
+				}
+				if(res.model==='gate'){setExitGate((prevState:any)=>({...prevState,status:res.status,message:res.message}))}
+				if(res.terminate){connectionq.stop()}
 			})
 		}catch(e){
 			console.log(e)
@@ -236,8 +314,7 @@ export const Control =  observer((props: any) =>{
 })
 
 function handleStatus(status:'loading'|'success'|'failed'|'idle'){
-	if(status==='loading'){
-		
+	if(status==='loading'){	
 		return (<div className='flex gap-2 items-center'>Detecting <AiOutlineLoading className='w-5 h-5 animate-spin text-primary-500 font-bold' /></div>)
 	}
 	if(status==='success'){
@@ -250,97 +327,3 @@ function handleStatus(status:'loading'|'success'|'failed'|'idle'){
 		return (<>Idle</>)
 	}
 }
-
-
-
-// export const Control = (props: any) => {
-// 	const [enteranceState, setEnteranceState] = useState(ApiCallStates.IDLE)
-// 	const [enteranceGateState, setEnteranceGateState] = useState(false)
-// 	const [exitState, setExitState] = useState(ApiCallStates.IDLE)
-// 	const [exitGateState, setExitGateState] = useState(false)
-// 	const [connection, setConnection] = useState<HubConnection|null>(null)
-// 	const [showPlate,setShowPlate] = useState(null)
-// 	const path = 'F:\\Dollar.png'
-// 	console.log(path)
-// 	return (
-// 		<>
-// 			<Typography
-// 				variant="h2"
-// 				color="black"
-// 				style={{ marginBottom: '50px', width: '30%' }}
-// 			>
-//         Control
-// 			</Typography>
-
-// 			<div
-// 				style={{
-// 					display: 'flex',
-// 					justifyContent: 'space-between',
-// 					borderBottom: '1px solid gray',
-// 					marginBottom: '32px',
-// 					width: '40%',
-// 				}}
-// 			>
-// 				{/* entrance gate */}
-// 				<Typography variant="h5" color="black" style={{}}>
-//           Entrance Gate Control
-// 				</Typography>
-// 				<div>
-//           GateStatus: <span>{enteranceGateState ? 'closed' : 'open'}</span>
-// 				</div>
-// 			</div>
-// 			<Button onClick={() => entranceGateEnter()} variant="contained">
-//         Open Gate
-// 			</Button>
-// 			<Button
-// 				onClick={() => departureGate('1')}
-// 				variant="contained"
-// 				color="error"
-// 				style={{ display: 'block', marginTop: '16px' }}
-// 			>
-//         Close Gate
-// 			</Button>
-
-// 			{true && (
-// 				<div className='flex justify-start items-center gap-4'>
-// 					<div className=''>
-// 					Current Licence pic: 
-// 					</div>
-// 					<div className='w-28'>
-// 						<img src={path} alt="" />
-// 					</div>
-// 				</div>)}
-// 			<div
-// 				style={{
-// 					display: 'flex',
-// 					justifyContent: 'space-between',
-// 					borderBottom: '1px solid gray',
-// 					marginBottom: '32px',
-// 					marginTop: '50px',
-// 					width: '40%',
-// 				}}
-// 			>
-				
-// 				{/* EXit gate */}
-// 				<Typography variant="h5" color="black" style={{}}>
-//           Exit Gate Control
-// 				</Typography>
-// 				<div>
-//           GateStatus: <span>Open</span>
-// 				</div>
-// 			</div>
-// 			<Button onClick={() => exitGateEnter()} variant="contained">
-//         Open Gate
-// 			</Button>
-// 			<Button
-// 				onClick={() => departureGate('2')}
-// 				variant="contained"
-// 				color="error"
-// 				style={{ display: 'block', marginTop: '16px' }}
-// 			>
-//         Close Gate
-// 			</Button>
-// 		</>
-// 	)
-// 
-// }
