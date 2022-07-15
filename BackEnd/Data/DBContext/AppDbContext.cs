@@ -103,7 +103,7 @@ namespace Parking_System_API.Data.DBContext
                 }
                 ) ;
             
-            mb.Entity<Participant>().Property(e => e.PhotoUrl).HasDefaultValue(".\\wwwroot\\images\\Anonymous.jpg");
+            //mb.Entity<Participant>().Property(e => e.PhotoUrl).HasDefaultValue(".\\wwwroot\\images\\Anonymous.jpg");
             mb.Entity<Participant>().HasMany(p => p.Vehicles).WithMany(e => e.Participants).UsingEntity(j => j.ToTable("Participant_Vehicle"));
             mb.Entity<Participant>(entity => {
                 entity.HasIndex(e => e.Email).IsUnique();
