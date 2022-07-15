@@ -87,10 +87,12 @@ const RenderActions = (row:any)=>{
 			<Dummy handleChange={handleFileChange}/>
 		</div>
 	)
-	async function handleFileChange(e:any) {
-		if (e.target.files) {
-			const selectedFile = e.target.files[0]
+	async function handleFileChange(files:any) {
+		console.log('filesssss',files)
+		if (files) {
+			const selectedFile = files[0]
 			if (selectedFile) {
+				console.log('selectedfile',selectedFile)
 				const formData = new FormData()
 				formData.append('avatar', selectedFile, selectedFile.name)
 				await uploadVideo(formData,row.id)
