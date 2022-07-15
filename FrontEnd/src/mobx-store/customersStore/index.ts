@@ -63,6 +63,16 @@ export default class CustomersStore {
 			console.log(error)
 		}
 	}
+
+	uploadVideo = async (formData: any, id: string) => {
+		try {
+			this.uiStore.setCallState('uploadCustomerVideo', 'loading')
+			await customerServices.uploadVideo(formData, id)
+			this.uiStore.setCallState('uploadCustomerVideo', 'success', 'video Uploaded')
+		} catch (error: any) {
+			this.uiStore.setCallState('uploadCustomerVideo', 'error', 'failed to upload video')
+		}
+	}
 	// deleteCustomer = async (id: any) => {
 	//   try {
 	//     await userServices.deleteProduct(id);
