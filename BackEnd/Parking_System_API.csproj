@@ -25,9 +25,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\face_verify\" />
-    <Folder Include="wwwroot\images\Participants\NewFolder\" />
-    <Folder Include="wwwroot\videos\NewFolder\" />
-    <Folder Include="wwwroot\videos\Participants\NewFolder\" />
+    <Folder Include="wwwroot\images\Participants\" />
   </ItemGroup>
 
 </Project>

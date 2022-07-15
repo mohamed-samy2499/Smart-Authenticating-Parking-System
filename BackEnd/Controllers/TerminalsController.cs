@@ -140,6 +140,10 @@ namespace Parking_System_API.Controllers
                 if (car == null)
                     return NotFound(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
 
+                    if (car.IsPresent)
+                    {
+                        return Unauthorized(new { Error = $"Car {car.PlateNumberId} is already present" });
+                    }
 
                 //checking if Id exists in DB
                 
@@ -155,6 +159,8 @@ namespace Parking_System_API.Controllers
                     {
                             //Parking Transaction
                         parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = true });
+                            car.IsPresent = true;
+                     
                             if (!await parkingTransactionRepository.SaveChangesAsync())
                             {
                                 return BadRequest("Enter Transaction is not completed");
@@ -379,7 +385,10 @@ namespace Parking_System_API.Controllers
 
                     if (car == null)
                         return NotFound(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
-
+                    if (!car.IsPresent)
+                    {
+                        return Unauthorized(new { Error = $"Car {car.PlateNumberId} is not present in garage" });
+                    }
 
                     //checking if Id exists in DB
 
@@ -395,10 +404,12 @@ namespace Parking_System_API.Controllers
                         {
                             //Parking Transaction
                             parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = false });
+                            car.IsPresent = false;
                             if (!await parkingTransactionRepository.SaveChangesAsync())
                             {
                                 return BadRequest("Exit Transaction is not completed");
                             }
+
                             gate.State = true;
                             return Ok("Exit is Allowed");
 
