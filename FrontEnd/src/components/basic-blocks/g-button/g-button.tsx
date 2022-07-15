@@ -12,7 +12,7 @@ const largeSizeClasses = { icon: ['h-6 w-6 ml-3'], button: ['py-2 px-6 text-base
 const xlargeSizeClasses = { icon: ['h-6 w-6 ml-4'], button: ['py-3 px-7 text-base'], loading: ['h-6 w-6'] }
 
 const outlinedClasses = (color: string) => {
-	return [`border-${color}-100 shadow-sm bg-transparent text-${color}-500 hover:bg-${color}-500 hover:text-white focus:ring-${color}-500 disabled:bg-transparent disabled:text-${color}-200 disabled:border-${color}-200`]
+	return [`border-${color}-500 shadow-sm bg-transparent text-${color}-500 hover:bg-${color}-500 hover:text-white focus:ring-${color}-500 disabled:bg-transparent disabled:text-${color}-200 disabled:border-${color}-200 font-semibold`]
 }
 
 const containedClasses = (color: string) => {

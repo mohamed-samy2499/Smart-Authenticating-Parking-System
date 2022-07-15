@@ -39,8 +39,10 @@ export const Control =  observer((props: any) =>{
 				<div className='flex-1'>
 					<GSection
 						title='Enterance Gate Control'
-						subtitle={<div className={`bg-${enteranceGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-20`}>{enteranceGate.status?'Opened':'Closed'}</div>}
-						actions={	
+						actions={<div className={`bg-${enteranceGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{enteranceGate.status?'Gate Opened':' Gate Closed'}</div>}
+					>
+						{/* Face Section */}
+						<div className='flex gap-2'>
 							<GButton
 								size='sm'
 								label='Start Detection'
@@ -48,10 +50,14 @@ export const Control =  observer((props: any) =>{
 								color='primary'
 								onClick={()=>{startEnteranceDetection()}}
 							/>
-						}
-					>
-
-						{/* Face Section */}
+							<GButton
+								size='sm'
+								label='Car Left'
+								variant='contained'
+								color='danger'
+								onClick={()=>{departureGate('1','enter')}}
+							/>
+						</div>
 						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
 							<h1 className=' font-bold text-2xl mb-6 bg-white inline-flex p-2 rounded-md text-primary-400'>Face module </h1>
 							<div className='flex justify-start items-center gap-2'>
@@ -127,8 +133,10 @@ export const Control =  observer((props: any) =>{
 				<div className='flex-1'>
 					<GSection
 						title='Exit Gate Control'
-						subtitle={<div className={`bg-${exitGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-20`}>{exitGate.status?'Opened':'Closed'}</div>}
-						actions={
+						actions={<div className={`bg-${exitGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{exitGate.status?'Gate Opened':' Gate Closed'}</div>}
+					>
+						{/* Face Section */}
+						<div className='flex gap-2'>
 							<GButton
 								size='sm'
 								label='Start Detection'
@@ -136,9 +144,14 @@ export const Control =  observer((props: any) =>{
 								color='primary'
 								onClick={()=>{startExitDetection()}}
 							/>
-						}
-					>
-						{/* Face Section */}
+							<GButton
+								size='sm'
+								label='Car Left'
+								variant='contained'
+								color='danger'
+								onClick={()=>{departureGate('1','exit')}}
+							/>
+						</div>	
 						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
 							<h1 className=' font-bold text-2xl mb-6 bg-white inline-flex p-2 rounded-md text-primary-400'>Face module </h1>
 							<div className='flex justify-start items-center gap-2'>
@@ -228,6 +241,24 @@ export const Control =  observer((props: any) =>{
 		}
 	}
 
+	async function departureGate(id: string,gate:'enter'|'exit') {
+		try {
+			const response = await http.post(`Terminals/CarDeparture/${id}`)
+			if(gate === 'enter'){
+				setExitGate((prevState:any)=>(
+					{...prevState,status:false	}
+				))
+			}
+			if(gate === 'exit'){
+				setEnteranceGate((prevState:any)=>(
+					{...prevState,status:false	}
+				))
+			}
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
 	async function enteranceGateSocket(){
 		try{
 			const connectionq = new HubConnectionBuilder()
@@ -237,9 +268,8 @@ export const Control =  observer((props: any) =>{
 			await connectionq.start()
 			setConnection(connectionq)
 	
-			connectionq.on('sendToReact', (res) => {
+			connectionq.on('enteranceGateDetection', (res) => {
 				if(res.model==='face'){
-					console.log('entered face enteranceGate',res)
 					setEnteranceGate((prevState:any)=>(
 						{...prevState,
 							face:{...prevState.face,
@@ -251,7 +281,6 @@ export const Control =  observer((props: any) =>{
 					))
 				}
 				if(res.model==='plate'){
-					console.log('entered plate enteranceGate',res)
 					setEnteranceGate((prevState:any)=>(
 						{...prevState,
 							plate:{...prevState.plate,
