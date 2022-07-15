@@ -4,26 +4,6 @@ import { observer } from 'mobx-react'
 import { GButton, GDialog, GLoading, GSection, GTable } from 'components/basic-blocks'
 import {columns} from './columns'
 import { CreateEditCustomer } from './customer-table/create-edit-customer'
-// import { CreateEditCar } from './create-edit-car'
-
-// export const CustomerPage = observer(() => {
-// 	const { customersStore } = useStores()
-// 	const { getAllCustomers, getCustomersState, customers } = customersStore
-
-// 	useEffect(() => {
-// 		const getData = () => {
-// 			getAllCustomers()
-// 		}
-// 		getData()
-// 	}, [])
-// 	if (getCustomersState === ApiCallStates.LOADING) return <GLoading />
-// 	console.log(customers)
-// 	return <CustomerTable customersArray={customers} />
-// })
-
-
-
-
 
 export const CustomerPage = observer(() => {
 	const { customersStore } = useStores()

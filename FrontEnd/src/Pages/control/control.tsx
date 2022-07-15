@@ -243,14 +243,14 @@ export const Control =  observer((props: any) =>{
 
 	async function departureGate(id: string,gate:'enter'|'exit') {
 		try {
-			const response = await http.post(`Terminals/CarDeparture/${id}`)
+			await http.post(`Terminals/CarDeparture/${id}`)
 			if(gate === 'enter'){
-				setExitGate((prevState:any)=>(
+				setEnteranceGate((prevState:any)=>(
 					{...prevState,status:false	}
 				))
 			}
 			if(gate === 'exit'){
-				setEnteranceGate((prevState:any)=>(
+				setExitGate((prevState:any)=>(
 					{...prevState,status:false	}
 				))
 			}

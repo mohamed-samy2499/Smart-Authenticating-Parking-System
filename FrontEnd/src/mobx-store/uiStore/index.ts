@@ -70,6 +70,7 @@ export class UiStore {
 		getCustomers: 'idle',
 		mutateCustomers: 'idle',
 
+		uploadCustomerVideo: 'idle',
 	}
 
 	setCallState(key: string, state: 'idle' | 'loading' | 'success' | 'error', message?: string) {

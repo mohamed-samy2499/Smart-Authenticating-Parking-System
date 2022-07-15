@@ -7,7 +7,8 @@ export const customerServices = {
 	createCustomer,
 	updateCustomer,
 	deleteCustomer,
-	getCustomers
+	getCustomers,
+	uploadVideo
 }
 
 // ************************************************************************
@@ -33,4 +34,15 @@ async function getCustomers() {
 	const response = await http.get('Participants')
 
 	return response.data
+}
+async function uploadVideo(formData: any, id: string) {
+	const { data } = await http.post(`Participants/${id}/uploadVideo`, formData, {
+		headers: {
+			'Content-Type': 'multipart/form-data'
+		},
+		onUploadProgress: progressEvent => {
+			console.log(Math.round((progressEvent.loaded / progressEvent.total) * 100) + '%')
+		}
+	})
+	return data.data
 }
