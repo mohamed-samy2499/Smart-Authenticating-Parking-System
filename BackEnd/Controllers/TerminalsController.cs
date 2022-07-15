@@ -76,7 +76,7 @@ namespace Parking_System_API.Controllers
                 }
                 if (gate.State) //gate is open
                 {
-                    await _messageHub.Clients.All.SendAsync("sendToReact",
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                     new SocketMessage()
                     {
                         model = "gate",
@@ -92,7 +92,7 @@ namespace Parking_System_API.Controllers
                     }
 
                     }
-                await _messageHub.Clients.All.SendAsync("sendToReact",
+                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                     new SocketMessage()
                     {
                         model = "gate",
@@ -104,11 +104,11 @@ namespace Parking_System_API.Controllers
                 //gate is closed
                 //calling APNR model
                 string PlateNum = "";
-                await _messageHub.Clients.All.SendAsync("sendToReact",
+                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                     new SocketMessage() { model = "plate", status = "loading", terminate = false, message = "plate recognition system started", imagePath = "" });
                 Thread VehicleThread = new Thread(() => PlateNum = GetVehicleIdAsync("http://127.0.0.1:5000/start"));
 
-                await _messageHub.Clients.All.SendAsync("sendToReact",
+                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                     new SocketMessage() { model = "face", status = "loading", terminate = false, message = "face recognition system started", imagePath = "" });
 
                 //calling the faceModel
@@ -123,19 +123,21 @@ namespace Parking_System_API.Controllers
                 ParticipantIdThread.Join();
                 VehicleThread.Join();
 
-                if (ParticipantInfo[0] == "face_failed")
+                if (ParticipantInfo[0] == "face_failed"|| PlateNum == "plate_failed")
                 {
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
-                    return Ok(new { message = "face recognition failed" });
-                }
-                if (PlateNum == "plate_failed")
-                {
 
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                   new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
-                    return Ok(new { message = "plate recognition failed" });
+                  new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+
+                    return Ok(new { message = "face recognition or plate recognition failed" });
                 }
+               
+
+                   
+              
+                
                 var ParticipantId = ParticipantInfo[1];
 
                 var face_path = ParticipantInfo[0];
@@ -199,8 +201,7 @@ namespace Parking_System_API.Controllers
                         message = $"plate has been recognized with number :{PlateNum}",
                         imagePath = filePath_plate
                     });
-                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                    new SocketMessage() { model = "", status = "", terminate = true, message = "" });
+                   
                     Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
 
                     Participant Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true);
@@ -216,6 +217,8 @@ namespace Parking_System_API.Controllers
                            message = $"Car with PlateNumber {PlateNum} is not found",
                            imagePath = ""
                        });
+                        await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                         return Ok(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
                     }
 
@@ -230,6 +233,8 @@ namespace Parking_System_API.Controllers
                            message = $"Car {car.PlateNumberId} is already present",
                            imagePath = ""
                        });
+                        await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                         return Ok(new { Error = $"Car {car.PlateNumberId} is already present" });
                     }
 
@@ -288,7 +293,9 @@ namespace Parking_System_API.Controllers
                                 message = $"Gate is being opened",
                                 imagePath = ""
                             });
-                            
+                            await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
+
                             return Ok(new { message = "Access Allowed; Gate is being open", GateStatus = "${ gate.State}" });
 
                         }
@@ -346,7 +353,7 @@ namespace Parking_System_API.Controllers
             catch (Exception ex)
             {
                 var list = new List<string>();
-                list.Append("face_failed");
+                list.Add("face_failed");
                 return list;
             }
         }
@@ -487,20 +494,17 @@ namespace Parking_System_API.Controllers
                 ParticipantIdThread.Join();
                 VehicleThread.Join();
 
-                if (ParticipantInfo[0] == "face_failed")
+                if (ParticipantInfo[0] == "face_failed" || PlateNum == "plate_failed")
                 {
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
-                    return Ok(new { message = "face recognition failed" });
-                }
-
-                if(PlateNum == "plate_failed")
-                {
 
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
-                   new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
-                    return Ok(new { message = "plate recognition failed" });
+                  new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+
+                    return Ok(new { message = "face recognition or plate recognition failed" });
                 }
+
 
                 var ParticipantId = ParticipantInfo[1];
 
@@ -585,8 +589,7 @@ namespace Parking_System_API.Controllers
                         message = $"plate has been recognized with number :{PlateNum}",
                         imagePath = filePath_plate
                     });
-                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
-                    new SocketMessage() { model = "", status = "", terminate = true, message = "" });
+                    
                     Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(PlateNum);
 
                     Participant Person = await participantRepository.GetParticipantAsyncByID(ParticipantId, true);
@@ -674,6 +677,8 @@ namespace Parking_System_API.Controllers
                                message = $"Gate is being opened",
                                imagePath = ""
                            });
+                            await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                    new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                             return Ok(new { message = "Exit is allowed", GateStatus = "${ gate.State}" });
 
                         }
@@ -731,9 +736,9 @@ namespace Parking_System_API.Controllers
                            new SocketMessage()
                            {
                                model = "gate",
-                               status = "open",
+                               status = "closed",
                                terminate = false,
-                               message = $"Gate is being opened",
+                               message = $"Gate is being closed",
                                imagePath = ""
                            });
                 return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
