@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, runInAction } from 'mobx'
 import { UiStore } from 'mobx-store/uiStore'
 import { history } from '../../helpers'
 import { customerServices } from '../../Services/customerService'
@@ -14,22 +14,7 @@ export default class CustomersStore {
 
 	customers: customerData[] = []
 	getCustomersState: ApiCallStates = ApiCallStates.IDLE
-	customersArray: customerData[] = [
-		{
-			name: 'Hazem',
-			licence: '123GUD',
-			email: 'hazem.khaled1293@gmail.com',
-			isEgyptian: true,
-			nid: '12345678912345'
-		},
-		{
-			name: 'Khaled',
-			licence: '123GUD',
-			email: 'hazem.khaled1293@gmail.com',
-			isEgyptian: true,
-			nid: '12345678912346'
-		}
-	]
+	logs: any[] = []
 
 	createCustomer = async (data: customerData) => {
 		// const newArray = this.customersArray;
@@ -69,8 +54,22 @@ export default class CustomersStore {
 			this.uiStore.setCallState('uploadCustomerVideo', 'loading')
 			await customerServices.uploadVideo(formData, id)
 			this.uiStore.setCallState('uploadCustomerVideo', 'success', 'video Uploaded')
+			runInAction(async () => {
+				await this.getAllCustomers()
+			})
 		} catch (error: any) {
 			this.uiStore.setCallState('uploadCustomerVideo', 'error', 'failed to upload video')
+		}
+	}
+
+	getCustomerLogs = async (id: string) => {
+		try {
+			this.uiStore.setCallState('getCustomerLogs', 'loading')
+			const logs = await customerServices.getCustomerLog(id)
+			this.logs === logs
+			this.uiStore.setCallState('getCustomerLogs', 'success')
+		} catch (error: any) {
+			this.uiStore.setCallState('getCustomerLogs', 'error', 'failed to get logs')
 		}
 	}
 	// deleteCustomer = async (id: any) => {

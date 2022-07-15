@@ -8,7 +8,8 @@ export const customerServices = {
 	updateCustomer,
 	deleteCustomer,
 	getCustomers,
-	uploadVideo
+	uploadVideo,
+	getCustomerLog
 }
 
 // ************************************************************************
@@ -45,4 +46,9 @@ async function uploadVideo(formData: any, id: string) {
 		}
 	})
 	return data.data
+}
+async function getCustomerLog(id: string) {
+	const response = await http.get(`Transactions/participant/${id}`)
+	console.log('serviceLogs', response.data)
+	return response.data
 }

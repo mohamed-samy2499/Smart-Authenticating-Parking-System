@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { GButton, GDialog } from 'components/basic-blocks'
 import { GTableColumn } from 'components/basic-blocks/g-table/types'
 import moment from 'moment'
@@ -6,6 +6,7 @@ import { useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { CreateEditCustomer } from './customer-table/create-edit-customer'
 import { useStores } from 'hooks/useStores'
+import { observer } from 'mobx-react'
 // import { CreateEditCar } from './create-edit-car'
 
 export const columns: Array<GTableColumn<any>> = [
@@ -42,22 +43,24 @@ const RenderStatus =(props:any)=>{
 
 
 
-const RenderActions = (props:any)=>{
+const RenderActions = observer((props:any)=>{
 	const {row} = props
 	const [openEdit,setOpenEdit] = useState(false)
 	const [openLogs,setOpenLogs] = useState(false)
-	const [file, setFile] = useState<File | null>(null)
-	const hiddenFileInput = useRef(null)
-
+	
 	const {customersStore} =useStores()
-	const {uploadVideo} = customersStore
+	const {uploadVideo,getCustomerLogs,logs} = customersStore
+
+
 	return (
 		<div className='flex gap-4'>
 			<GDialog
 				open={openLogs}
 				onClose={()=>setOpenLogs(false)}
 			>
-				<CreateEditCustomer />
+				
+			
+				<RenderLogs id={row.id}/>
 			</GDialog>
 			<GButton 
 				label='Logs'
@@ -78,12 +81,12 @@ const RenderActions = (props:any)=>{
 				color='primary'
 				onClick={()=>setOpenEdit(true)}
 			/>
-			<GDialog
+			{/* <GDialog
 				open={openLogs}
 				onClose={()=>setOpenLogs(false)}
 			>
 				<CreateEditCustomer />
-			</GDialog>
+			</GDialog> */}
 			<Dummy handleChange={handleFileChange}/>
 		</div>
 	)
@@ -99,7 +102,26 @@ const RenderActions = (props:any)=>{
 			}
 		}
 	}
-}
+})
+
+const RenderLogs = observer((props:any)=>{
+	const {id} = props
+	const {customersStore} =useStores()
+	const {uploadVideo,getCustomerLogs,logs} = customersStore
+
+
+	{console.log(logs)}
+	useEffect(()=>{
+		(async ()=>{
+			await getCustomerLogs(id)
+		})()
+	},[])
+	return(
+		<div>logs</div>
+	)
+})
+
+
 
 const Dummy = (props:any) => {
 	const {handleChange} = props
