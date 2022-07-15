@@ -42,8 +42,8 @@ const RenderStatus =(props:any)=>{
 
 
 
-const RenderActions = (row:any)=>{
-	console.log(row)
+const RenderActions = (props:any)=>{
+	const {row} = props
 	const [openEdit,setOpenEdit] = useState(false)
 	const [openLogs,setOpenLogs] = useState(false)
 	const [file, setFile] = useState<File | null>(null)
