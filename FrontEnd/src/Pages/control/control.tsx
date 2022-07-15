@@ -291,7 +291,10 @@ export const Control =  observer((props: any) =>{
 						}
 					))
 				}
-				if(res.model==='gate'){setEnteranceGate((prevState:any)=>({...prevState,status:res.status,message:res.message}))}
+				if(res.model==='gate'){
+					const gate = res.status==='open'? true:res.status==='closed'?false:false
+					setEnteranceGate((prevState:any)=>({...prevState,status:gate,message:res.message}))
+				}
 				if(res.terminate){connectionq.stop()}
 			})
 		}catch(e){
@@ -333,7 +336,10 @@ export const Control =  observer((props: any) =>{
 						}
 					))
 				}
-				if(res.model==='gate'){setExitGate((prevState:any)=>({...prevState,status:res.status,message:res.message}))}
+				if(res.model==='gate'){
+					const gate = res.status==='open'? true:res.status==='closed'?false:false
+					setExitGate((prevState:any)=>({...prevState,status:gate,message:res.message}))
+				}
 				if(res.terminate){connectionq.stop()}
 			})
 		}catch(e){
