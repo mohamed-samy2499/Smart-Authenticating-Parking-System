@@ -150,7 +150,7 @@ export const Control =  observer((props: any) =>{
 								</div>
 								<div className='w-28'>
 									<img
-										className={'inline-block h-10 w-10 rounded-full border-2 border-gray-300'}
+										className={'inline-block h-16 w-16 rounded-full border-2 border-gray-300'}
 										src={exitFace || 'https://eu.ui-avatars.com/api/?name=UknownPerson'} alt='user photo'
 									/>
 								</div>
@@ -241,10 +241,10 @@ function handleStatus(status:'loading'|'success'|'failed'|'idle'){
 		return (<div className='flex gap-2 items-center'>Detecting <AiOutlineLoading className='w-5 h-5 animate-spin text-primary-500 font-bold' /></div>)
 	}
 	if(status==='success'){
-		return (<>Successful <AiFillCheckCircle className='w-5 h-5 text-success-500'/></>)
+		return (<div className='flex gap-2 items-center'>Successful <AiFillCheckCircle className='w-5 h-5 text-success-500'/></div>)
 	}
 	if(status==='failed'){
-		return (<>Failed <ImCross className='w-5 h-5 text-danger-500'/></>)
+		return (<div className='flex gap-2 items-center'>Failed <ImCross className='w-5 h-5 text-danger-500'/></div>)
 	}
 	if(status==='idle'){
 		return (<>Idle</>)
