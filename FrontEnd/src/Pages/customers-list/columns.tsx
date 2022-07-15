@@ -94,7 +94,7 @@ const RenderActions = (props:any)=>{
 			if (selectedFile) {
 				console.log('selectedfile',selectedFile)
 				const formData = new FormData()
-				formData.append('avatar', selectedFile, selectedFile.name)
+				formData.append('Media', selectedFile, selectedFile.name)
 				await uploadVideo(formData,row.id)
 			}
 		}
