@@ -30,10 +30,10 @@ namespace Parking_System_API.Controllers
             {
 
                 var transactions = await _transactionRepository.GetAllTransactions();
-                if (transactions == null || transactions.Length == 0)
-                {
-                    return Ok(transactions);
-                }
+                //if (transactions == null || transactions.Length == 0)
+                //{
+                //    return Ok(transactions);
+                //}
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
 
@@ -53,10 +53,10 @@ namespace Parking_System_API.Controllers
             {
                 var id = User.Claims.First(i => i.Type == "ParticipantID").Value;
                 var transactions = await _transactionRepository.GetAllTransactionsForParticipant(id);
-                if (transactions == null || transactions.Length == 0)
-                {
-                    return Ok(transactions);
-                }
+                //if (transactions == null || transactions.Length == 0)
+                //{
+                //    return Ok(transactions);
+                //}
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
 
@@ -96,10 +96,10 @@ namespace Parking_System_API.Controllers
             try
             {
                 var transactions = await _transactionRepository.GetAllTransactionsForParticipant(participantID);
-                if (transactions == null || transactions.Length == 0)
-                {
-                    return Ok(transactions);
-                }
+                //if (transactions == null || transactions.Length == 0)
+                //{
+                //    return Ok(transactions);
+                //}
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
 
