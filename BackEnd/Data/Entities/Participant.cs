@@ -22,12 +22,12 @@ namespace Parking_System_API.Data.Entities
         [Required]
         public string Salt { get; set; }
 
-        public string PhotoUrl { get; set; }
+        //public string PhotoUrl { get; set; }
         [Required]
         public bool DoProvideFullData { get; set; }
 
-        [Required]
-        public bool DoProvidePhoto { get; set; }
+        //[Required]
+        //public bool DoProvidePhoto { get; set; }
         [Required]
         public bool DoProvideVideo { get; set; }
         [Required]

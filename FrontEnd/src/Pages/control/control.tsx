@@ -314,7 +314,7 @@ export const Control =  observer((props: any) =>{
 			connectionq.on('exitGateDetection', (res) => {
 				if(res.model==='face'){
 					console.log('entered face enteranceGate',res)
-					setEnteranceGate((prevState:any)=>(
+					setExitGate((prevState:any)=>(
 						{...prevState,
 							face:{...prevState.face,
 								img:res.imagePath ,
@@ -326,7 +326,7 @@ export const Control =  observer((props: any) =>{
 				}
 				if(res.model==='plate'){
 					console.log('entered plate enteranceGate',res)
-					setEnteranceGate((prevState:any)=>(
+					setExitGate((prevState:any)=>(
 						{...prevState,
 							plate:{...prevState.plate,
 								img:res.imagePath ,
@@ -337,6 +337,7 @@ export const Control =  observer((props: any) =>{
 					))
 				}
 				if(res.model==='gate'){
+					console.log('Response : ',res)
 					const gate = res.status==='open'? true:res.status==='closed'?false:false
 					setExitGate((prevState:any)=>({...prevState,status:gate,message:res.message}))
 				}

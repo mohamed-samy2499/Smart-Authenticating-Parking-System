@@ -10,9 +10,9 @@
 
         public VehicleResponseModel[] Vehicles { get; set; }
         public bool DoProvideFullData { get; set; }
-        public bool DoProvidePhoto { get; set; }
+        //public bool DoProvidePhoto { get; set; }
         
-        public string PhotoUrl { get; set; }
+        //public string PhotoUrl { get; set; }
         public bool DoProvideVideo { get; set; }
         public bool DoDetected { get; set; }
 

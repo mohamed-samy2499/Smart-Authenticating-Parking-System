@@ -32,7 +32,7 @@ namespace Parking_System_API.Controllers
                 var transactions = await _transactionRepository.GetAllTransactions();
                 if (transactions == null || transactions.Length == 0)
                 {
-                    return NotFound($"No transactions retrieved");
+                    return Ok(transactions);
                 }
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
@@ -55,7 +55,7 @@ namespace Parking_System_API.Controllers
                 var transactions = await _transactionRepository.GetAllTransactionsForParticipant(id);
                 if (transactions == null || transactions.Length == 0)
                 {
-                    return NotFound($"No transactions for id {id} retrieved");
+                    return Ok(transactions);
                 }
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
@@ -76,7 +76,7 @@ namespace Parking_System_API.Controllers
                 var transactions = await _transactionRepository.GetAllTransactionsForVehicle(plateID);
                 if (transactions == null || transactions.Length == 0)
                 {
-                    return NotFound($"No transactions for plate number {plateID} retrieved");
+                    return Ok(transactions);
                 }
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
@@ -98,7 +98,7 @@ namespace Parking_System_API.Controllers
                 var transactions = await _transactionRepository.GetAllTransactionsForParticipant(participantID);
                 if (transactions == null || transactions.Length == 0)
                 {
-                    return NotFound($"No transactions for person {participantID} retrieved");
+                    return Ok(transactions);
                 }
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);
@@ -121,7 +121,7 @@ namespace Parking_System_API.Controllers
                 var transactions = await _transactionRepository.GetAllTransactionsForParticipantAndVehicle(id, plateID);
                 if (transactions == null || transactions.Length == 0)
                 {
-                    return NotFound($"No transactions for plate number {plateID} retrieved");
+                    return Ok(transactions);
                 }
 
                 var model = _mapper.Map<ParkingTransactionAdminResponseModel[]>(transactions);

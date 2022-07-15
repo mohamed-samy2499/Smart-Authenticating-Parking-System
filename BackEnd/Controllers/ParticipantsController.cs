@@ -127,7 +127,7 @@ namespace Parking_System_API.Controllers
                     }
                 }
 
-                participant = new Participant() { Id = Guid.NewGuid().ToString() ,Status = false, DoProvideFullData = true, DoProvidePhoto = false, DoProvideVideo = false, DoDetected = false, PhotoUrl = ".\\wwwroot\\images\\Anonymous.jpg" };
+                participant = new Participant() { Id = Guid.NewGuid().ToString() ,Status = false, DoProvideFullData = true,  DoProvideVideo = false, DoDetected = false };
                 if (model.IsEgyptian)
                 {
                     if (model.NationalId == null || model.NationalId < 2000000000000)
@@ -282,7 +282,7 @@ namespace Parking_System_API.Controllers
                     //response  if succeeded => (result.preprocessing_response && result.model_response)
                     //Console.WriteLine(result);
 
-                if (participant.DoProvideFullData && participant.DoProvidePhoto && participant.DoProvideVideo && participant.DoDetected)
+                if (participant.DoProvideFullData  && participant.DoProvideVideo && participant.DoDetected)
                 {
                     participant.Status = true;
                 }
@@ -308,128 +308,128 @@ namespace Parking_System_API.Controllers
         }
 
 
-        [HttpPost("uploadMyProfilePicture"), Authorize(Roles = "participant")]
-        public async Task<IActionResult> UploadProfilePictureForMe([FromForm] UploadMedia upload)
-        {//DAMANA
-            try
-            {
-                var id = User.Claims.First(i => i.Type == "ParticipantID").Value;
-                var participant = await participantRepository.GetParticipantAsyncByID(id);
-                if (participant is null)
-                {
-                    return BadRequest(new { Error = $"Participant of Id {id} doesn't Exist." });
-                }
-                var pic = upload.Media;
-                if (pic.ContentType != "image/jpeg")
-                {
-                    return BadRequest(new { Error = $"Please Upload JPG File." });
-                }
-                if (participant.PhotoUrl != ".\\wwwroot\\images\\Anonymous.jpg")
-                {
-                    // If file found, delete it    
-                    System.IO.File.Delete(participant.PhotoUrl);
+        //[HttpPost("uploadMyProfilePicture"), Authorize(Roles = "participant")]
+        //public async Task<IActionResult> UploadProfilePictureForMe([FromForm] UploadMedia upload)
+        //{//DAMANA
+        //    try
+        //    {
+        //        var id = User.Claims.First(i => i.Type == "ParticipantID").Value;
+        //        var participant = await participantRepository.GetParticipantAsyncByID(id);
+        //        if (participant is null)
+        //        {
+        //            return BadRequest(new { Error = $"Participant of Id {id} doesn't Exist." });
+        //        }
+        //        var pic = upload.Media;
+        //        if (pic.ContentType != "image/jpeg")
+        //        {
+        //            return BadRequest(new { Error = $"Please Upload JPG File." });
+        //        }
+        //        if (participant.PhotoUrl != ".\\wwwroot\\images\\Anonymous.jpg")
+        //        {
+        //            // If file found, delete it    
+        //            System.IO.File.Delete(participant.PhotoUrl);
 
-                }
+        //        }
 
-                var path = $".\\wwwroot\\images\\Participants\\{id}_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpg";
-                //Connection Lost ??? 
+        //        var path = $".\\wwwroot\\images\\Participants\\{id}_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpg";
+        //        //Connection Lost ??? 
 
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await pic.CopyToAsync(stream);
-                }
-
-
-                participant.DoProvidePhoto = true;
-                participant.PhotoUrl = path;
+        //        using (var stream = new FileStream(path, FileMode.Create))
+        //        {
+        //            await pic.CopyToAsync(stream);
+        //        }
 
 
+        //        participant.DoProvidePhoto = true;
+        //        participant.PhotoUrl = path;
 
-                if (participant.DoProvideFullData && participant.DoProvidePhoto &&participant.DoProvideVideo && participant.DoDetected)
-                {
-                    participant.Status = true;
-                }
-                else
-                {
-                    participant.Status = false;
-                }
 
-                if (await participantRepository.SaveChangesAsync())
-                {
-                    var response_model = mapper.Map<ParticipantResponseModel>(participant);
-                    return Created(linkGenerator.GetPathByAction("GetParticipant", "Participants", new { id = participant.Id }), new { Participant = response_model, Message = "Photo is Created" });
 
-                }
+        //        if (participant.DoProvideFullData && participant.DoProvidePhoto &&participant.DoProvideVideo && participant.DoDetected)
+        //        {
+        //            participant.Status = true;
+        //        }
+        //        else
+        //        {
+        //            participant.Status = false;
+        //        }
+
+        //        if (await participantRepository.SaveChangesAsync())
+        //        {
+        //            var response_model = mapper.Map<ParticipantResponseModel>(participant);
+        //            return Created(linkGenerator.GetPathByAction("GetParticipant", "Participants", new { id = participant.Id }), new { Participant = response_model, Message = "Photo is Created" });
+
+        //        }
                 
-                return BadRequest(new { Error = "Try Again adding Photo" });
-            }
-            catch (Exception ex)
-            {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
-            }
-        }
+        //        return BadRequest(new { Error = "Try Again adding Photo" });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
+        //    }
+        //}
 
-        [HttpPost("{id}/uploadProfilePicture"), Authorize(Roles = "admin, operator")]
-        public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] UploadMedia upload)
-        {//DAMANA
-            try
-            {
-                var participant = await participantRepository.GetParticipantAsyncByID(id);
-                if (participant is null)
-                {
-                    return BadRequest(new { Error = $"Participant of Id {id} doesn't Exist." });
-                }
-                var pic = upload.Media;
-                if (pic.ContentType != "image/jpeg")
-                {
-                    return BadRequest(new { Error = $"Please Upload JPG File." });
-                }
+        //[HttpPost("{id}/uploadProfilePicture"), Authorize(Roles = "admin, operator")]
+        //public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] UploadMedia upload)
+        //{//DAMANA
+        //    try
+        //    {
+        //        var participant = await participantRepository.GetParticipantAsyncByID(id);
+        //        if (participant is null)
+        //        {
+        //            return BadRequest(new { Error = $"Participant of Id {id} doesn't Exist." });
+        //        }
+        //        var pic = upload.Media;
+        //        if (pic.ContentType != "image/jpeg")
+        //        {
+        //            return BadRequest(new { Error = $"Please Upload JPG File." });
+        //        }
 
-                if (participant.PhotoUrl != ".\\wwwroot\\images\\Anonymous.jpg")
-                {
-                    // If file found, delete it    
-                    System.IO.File.Delete(participant.PhotoUrl);
+        //        if (participant.PhotoUrl != ".\\wwwroot\\images\\Anonymous.jpg")
+        //        {
+        //            // If file found, delete it    
+        //            System.IO.File.Delete(participant.PhotoUrl);
                     
-                }
+        //        }
 
-                var path = $".\\wwwroot\\images\\Participants\\{id}_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpg";
+        //        var path = $".\\wwwroot\\images\\Participants\\{id}_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpg";
 
-                //Connection Lost ??? 
+        //        //Connection Lost ??? 
 
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await pic.CopyToAsync(stream);
-                }
-
-
-                participant.DoProvidePhoto = true;
-                participant.PhotoUrl = path;
+        //        using (var stream = new FileStream(path, FileMode.Create))
+        //        {
+        //            await pic.CopyToAsync(stream);
+        //        }
 
 
+        //        participant.DoProvidePhoto = true;
+        //        participant.PhotoUrl = path;
 
-                if (participant.DoProvideFullData && participant.DoProvidePhoto && participant.DoProvideVideo && participant.DoDetected)
-                {
-                    participant.Status = true;
-                }
-                else
-                {
-                    participant.Status = false;
-                }
 
-                if (await participantRepository.SaveChangesAsync())
-                {
-                    var response_model = mapper.Map<ParticipantResponseModel>(participant);
-                    return Created(linkGenerator.GetPathByAction("GetParticipant", "Participants", new { id = participant.Id }), new { Participant = response_model, Message = "Photo is Created" });
 
-                }
+        //        if (participant.DoProvideFullData && participant.DoProvidePhoto && participant.DoProvideVideo && participant.DoDetected)
+        //        {
+        //            participant.Status = true;
+        //        }
+        //        else
+        //        {
+        //            participant.Status = false;
+        //        }
 
-                return BadRequest(new { Error = "Try Again adding Photo" });
-            }
-            catch (Exception ex)
-            {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
-            }
-        }
+        //        if (await participantRepository.SaveChangesAsync())
+        //        {
+        //            var response_model = mapper.Map<ParticipantResponseModel>(participant);
+        //            return Created(linkGenerator.GetPathByAction("GetParticipant", "Participants", new { id = participant.Id }), new { Participant = response_model, Message = "Photo is Created" });
+
+        //        }
+
+        //        return BadRequest(new { Error = "Try Again adding Photo" });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
+        //    }
+        //}
 
         [HttpPost("ForgetPassword")]
         public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordModel model)
@@ -472,7 +472,7 @@ namespace Parking_System_API.Controllers
                     return BadRequest(new { Error = $"Participant of Id {id} doesn't Exist." });
                 }
 
-                Byte[] b = System.IO.File.ReadAllBytes(participant.PhotoUrl);   // You can use your own method over here.         
+                //Byte[] b = System.IO.File.ReadAllBytes(participant.PhotoUrl);   // You can use your own method over here.         
                 return mapper.Map<ParticipantResponseModel>(participant);
             }
             catch (Exception ex)
@@ -580,16 +580,16 @@ namespace Parking_System_API.Controllers
                     participant.DoProvideFullData = true;
                 }
 
-                if (participant.PhotoUrl == ".\\wwwroot\\images\\Anonymous.jpg")
-                {
-                    participant.DoProvidePhoto = false;
-                }
-                else
-                {
-                    participant.DoProvidePhoto = true;
-                }
+                //if (participant.PhotoUrl == ".\\wwwroot\\images\\Anonymous.jpg")
+                //{
+                //    participant.DoProvidePhoto = false;
+                //}
+                //else
+                //{
+                //    participant.DoProvidePhoto = true;
+                //}
 
-                if (participant.DoProvidePhoto && participant.DoProvideFullData && participant.DoDetected && participant.DoProvideVideo)
+                if ( participant.DoProvideFullData && participant.DoDetected && participant.DoProvideVideo)
                 {
                     participant.Status = true;
                 }
@@ -688,16 +688,16 @@ namespace Parking_System_API.Controllers
                     participant.DoProvideFullData = true;
                 }
 
-                if (participant.PhotoUrl == ".\\wwwroot\\images\\Anonymous.jpg")
-                {
-                    participant.DoProvidePhoto = false;
-                }
-                else
-                {
-                    participant.DoProvidePhoto = true;
-                }
+                //if (participant.PhotoUrl == ".\\wwwroot\\images\\Anonymous.jpg")
+                //{
+                //    participant.DoProvidePhoto = false;
+                //}
+                //else
+                //{
+                //    participant.DoProvidePhoto = true;
+                //}
 
-                if (participant.DoProvidePhoto && participant.DoProvideFullData && participant.DoProvideVideo && participant.DoDetected)
+                if (participant.DoProvideFullData && participant.DoProvideVideo && participant.DoDetected)
                 {
                     participant.Status = true;
                 }

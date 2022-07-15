@@ -25,7 +25,7 @@ app.config["CORS_HEADERS"] = "Content-Type"
 app.config['JSON_SORT_KEYS'] = False
 
 FLAGS = Flags('tf', './checkpoints/tiny-custom-416', 416,
-            True, 'yolov4', './data/LP8_trimmed.mp4',
+            True, 'yolov4', './data/LP7_trimmed.mp4',
             None, 'XVID', 0.45, 0.25, False)
 # FLAGS = Flags('tf', './checkpoints/latest-416', 416,
 #             False, 'yolov4', './data/LP.mp4',
