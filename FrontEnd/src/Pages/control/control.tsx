@@ -71,6 +71,7 @@ export const Control =  observer((props: any) =>{
 				<div className='flex-1'>
 					<GSection
 						title='Enterance Gate Control'
+						subtitle={`${enteranceGate.message}`}
 						actions={<div className={`bg-${enteranceGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{enteranceGate.status?'Gate Opened':' Gate Closed'}</div>}
 					>
 						{/* Face Section */}
@@ -166,6 +167,7 @@ export const Control =  observer((props: any) =>{
 				<div className='flex-1'>
 					<GSection
 						title='Exit Gate Control'
+						subtitle={`${exitGate.message}`}
 						actions={<div className={`bg-${exitGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{exitGate.status?'Gate Opened':' Gate Closed'}</div>}
 					>
 						{/* Face Section */}
