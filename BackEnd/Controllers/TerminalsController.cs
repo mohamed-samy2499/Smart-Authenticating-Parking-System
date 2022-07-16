@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using System.Net.Http;
+using Parking_System_API.Data.Models;
 
 namespace Parking_System_API.Controllers
 {
@@ -261,28 +262,7 @@ namespace Parking_System_API.Controllers
                         if (Timenow > car.StartSubscription && Timenow < car.EndSubscription)
                         {
                             //Parking Transaction
-                            parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = true });
-                            car.IsPresent = true;
                             gate.State = true;
-                            if (!await parkingTransactionRepository.SaveChangesAsync())
-                            {
-                                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                               new SocketMessage()
-                               {
-                                   model = "gate",
-                                   status = "closed",
-                                   terminate = false,
-                                   message = $"Enter Transaction is not completed",
-                                   imagePath = ""
-                               });
-
-
-                                return Ok(new
-                                {
-                                    Error = "Enter Transaction is not completed",
-                                    GateStatus = "${ gate.State}"
-                                 });
-                            }
                             
                             await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                             new SocketMessage()
@@ -644,29 +624,10 @@ namespace Parking_System_API.Controllers
                         if (Timenow > car.StartSubscription && Timenow < car.EndSubscription)
                         {
                             //Parking Transaction
-                            parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = false });
-                            car.IsPresent = false;
+                           
 
                             gate.State = true;
-                            if (!await parkingTransactionRepository.SaveChangesAsync())
-                            {
-                                await _messageHub.Clients.All.SendAsync("exitGateDetection",
-                               new SocketMessage()
-                               {
-                                   model = "gate",
-                                   status = "closed",
-                                   terminate = false,
-                                   message = $"Exit Transaction is not completed",
-                                   imagePath = ""
-                               });
-
-
-                                return Ok(new
-                                {
-                                    Error = "Exit Transaction is not completed",
-                                    GateStatus = "${ gate.State}"
-                                });
-                            }
+                      
 
                             await _messageHub.Clients.All.SendAsync("exitGateDetection",
                            new SocketMessage()
@@ -718,33 +679,113 @@ namespace Parking_System_API.Controllers
 
 
 
-        [HttpPost("CarEntered/{GateId:int}")]
-        public async Task<IActionResult> CarEntered(int GateId)
+        [HttpPost("CarEntered/{gateId:int}")]
+        public async Task<IActionResult> CarEntered(int gateId,[FromBody]carDeparture model)
         {
             try
             {
-                var gate = await gateRepository.GetGateById(GateId);
+                string plateId = model.plateId;
+                string faceId = model.faceId;
+
+                var gate = await gateRepository.GetGateById(gateId);
                 if (gate == null)
-                    return NotFound(new { Error = $"Gate with id {GateId} doesn't exit" });
-                if(gate.Id == 2)
-                    return NotFound(new { Error = $"Gate with id {GateId} is only for entrance" });
-                await Task.Delay(3000);
-                gate.State = false;
+                    return NotFound(new { Error = $"Gate with id {gateId} doesn't exit" });
+                
+                
                 if (!await gateRepository.SaveChangesAsync())
                 {
 
                 }
+                Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(plateId);
 
-                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                           new SocketMessage()
-                           {
-                               model = "gate",
-                               status = "closed",
-                               terminate = false,
-                               message = $"Entrance Gate is being closed",
-                               imagePath = ""
-                           });
-                return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                Participant Person = await participantRepository.GetParticipantAsyncByID(faceId, true);
+                if(gateId == 1) 
+                {
+
+                    parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = faceId, PlateNumberId = plateId, DateTimeTransaction = DateTime.Now, isEnter = true });
+                    car.IsPresent = true;
+                    await Task.Delay(2000);
+                    gate.State = false;
+                    if (!await parkingTransactionRepository.SaveChangesAsync())
+                    {
+                        await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                       new SocketMessage()
+                       {
+                           model = "gate",
+                           status = "closed",
+                           terminate = false,
+                           message = $"Enter Transaction is not completed",
+                           imagePath = ""
+                       });
+
+
+                        return Ok(new
+                        {
+                            Error = "Enter Transaction is not completed",
+                            GateStatus = "${ gate.State}"
+                        });
+                    }
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                               new SocketMessage()
+                               {
+                                   model = "gate",
+                                   status = "closed",
+                                   terminate = false,
+                                   message = $"Entrance transaction completed successfully",
+                                   imagePath = ""
+                               });
+                    return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                }
+                if (gateId == 2)
+                {
+
+                    parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = faceId, PlateNumberId = plateId, DateTimeTransaction = DateTime.Now, isEnter = false });
+                    car.IsPresent = false;
+                    await Task.Delay(2000);
+                    gate.State = false;
+                    if (!await parkingTransactionRepository.SaveChangesAsync())
+                    {
+                        await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                       new SocketMessage()
+                       {
+                           model = "gate",
+                           status = "closed",
+                           terminate = false,
+                           message = $"Enter Transaction is not completed",
+                           imagePath = ""
+                       });
+
+
+                        return Ok(new
+                        {
+                            Error = "Enter Transaction is not completed",
+                            GateStatus = "${ gate.State}"
+                        });
+                    }
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                               new SocketMessage()
+                               {
+                                   model = "gate",
+                                   status = "closed",
+                                   terminate = false,
+                                   message = $"exit transaction completed successfully",
+                                   imagePath = ""
+                               });
+                    return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                }
+                else 
+                {
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                               new SocketMessage()
+                               {
+                                   model = "gate",
+                                   status = "closed",
+                                   terminate = false,
+                                   message = $"transaction failed",
+                                   imagePath = ""
+                               });
+                    return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                }
             }
             catch (Exception ex)
             {
@@ -759,7 +800,6 @@ namespace Parking_System_API.Controllers
                 var gate = await gateRepository.GetGateById(GateId);
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with id {GateId} doesn't exit" });
-                await Task.Delay(3000);
                 gate.State = false;
                 if (!await gateRepository.SaveChangesAsync())
                 {
@@ -771,10 +811,10 @@ namespace Parking_System_API.Controllers
                                model = "gate",
                                status = "closed",
                                terminate = false,
-                               message = $"Gate is being closed",
+                               message = $"Gate is being closed the transaction failed",
                                imagePath = ""
                            });
-                return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                return Ok(new { Success = "transaction failed Gate is closed", GateStatus = "${ gate.State}" });
             }
             catch (Exception ex)
             {
