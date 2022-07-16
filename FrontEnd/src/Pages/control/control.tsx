@@ -8,11 +8,7 @@ import { GButton, GListbox, GLoading, GSection } from 'components/basic-blocks'
 import { PageHeader } from 'components/page-header'
 import {AiFillCheckCircle, AiOutlineLoading} from 'react-icons/ai'
 import {ImCross} from 'react-icons/im'
-
 import { useStores } from 'hooks/useStores'
-
-
-
 
 export const Control =  observer((props: any) =>{
 	const {uiStore}=useStores()
@@ -93,7 +89,7 @@ export const Control =  observer((props: any) =>{
 								label='Car Entered'
 								variant='outlined'
 								color='success'
-								onClick={()=>{departureGate('1','enter')}}
+								onClick={()=>{passedGate('1','enter')}}
 								loading={uiStore.apiCallStates.enteranceGate==='loading'}
 								disabled={!(enteranceGate.status===true)||uiStore.apiCallStates.enteranceGate==='loading'}
 							/>
@@ -200,7 +196,7 @@ export const Control =  observer((props: any) =>{
 								label='Car Entered'
 								variant='outlined'
 								color='success'
-								onClick={()=>{departureGate('2','exit')}}
+								onClick={()=>{passedGate('2','exit')}}
 								loading={uiStore.apiCallStates.exitGate==='loading'}
 								disabled={!(exitGate.status===true) || uiStore.apiCallStates.enteranceGate==='loading'}
 							/>
@@ -323,6 +319,38 @@ export const Control =  observer((props: any) =>{
 			try {
 				uiStore.setCallState('exitGate','loading')
 				await http.post(`Terminals/CarDeparture/${id}`,{plateId:exitGate.plate.id,faceId:exitGate.face.id})
+				setExitGate(			{
+					face:{img:undefined,info:'',status:'idle',id:''},
+					plate:{img:undefined,info:'',status:'idle',id:''},
+					status:false,
+					message:'',
+				})
+				uiStore.setCallState('exitGate','idle')
+			} catch (error) {
+				uiStore.setCallState('exitGate','error')
+			}
+		}
+	}
+	async function passedGate(id: string,gate:'enter'|'exit') {
+		if(gate === 'enter'){
+			try {
+				uiStore.setCallState('enteranceGate','loading')
+				await http.post(`Terminals/CarEntered/${id}`,{plateId:enteranceGate.plate.id,faceId:enteranceGate.face.id})
+				setEnteranceGate({
+					face:{img:undefined,info:'',status:'idle',id:''},
+					plate:{img:undefined,info:'',status:'idle',id:''},
+					status:false,
+					message:'',
+				})
+				uiStore.setCallState('enteranceGate','idle')
+			} catch (error) {
+				uiStore.setCallState('enteranceGate','error')
+			}
+		}
+		if(gate === 'exit'){
+			try {
+				uiStore.setCallState('exitGate','loading')
+				await http.post(`Terminals/CarEntered/${id}`,{plateId:exitGate.plate.id,faceId:exitGate.face.id})
 				setExitGate(			{
 					face:{img:undefined,info:'',status:'idle',id:''},
 					plate:{img:undefined,info:'',status:'idle',id:''},
