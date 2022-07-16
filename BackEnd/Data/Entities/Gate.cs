@@ -12,8 +12,8 @@ namespace Parking_System_API.Data.Entities
         public bool Service { get; set; } //Online 1 -- Offline 0
         [Required]
         public bool State { get; set; } //open:1 close:0
-        [ForeignKey("FK_Gate_Terminal")]
-        public int TerminalId { get; set; }
-        public virtual Terminal Terminal { get; set; }
+        //[ForeignKey("FK_Gate_Terminal")]
+        //public int TerminalId { get; set; }
+        //public virtual Terminal Terminal { get; set; }
     }
 }

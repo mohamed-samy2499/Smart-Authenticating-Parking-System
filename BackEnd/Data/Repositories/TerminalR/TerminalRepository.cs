@@ -1,66 +1,66 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Parking_System_API.Data.DBContext;
-using Parking_System_API.Data.Entities;
-using System.Linq;
-using System.Threading.Tasks;
+﻿//using Microsoft.EntityFrameworkCore;
+//using Parking_System_API.Data.DBContext;
+//using Parking_System_API.Data.Entities;
+//using System.Linq;
+//using System.Threading.Tasks;
 
-namespace Parking_System_API.Data.Repositories.HardwareR
-{
-    public class TerminalRepository : ITerminalRepository
-    {
-        private readonly AppDbContext _context;
+//namespace Parking_System_API.Data.Repositories.HardwareR
+//{
+//    public class TerminalRepository : ITerminalRepository
+//    {
+//        private readonly AppDbContext _context;
 
-        public TerminalRepository(AppDbContext appDbContext)
-        {
-            this._context = appDbContext;
-        }
-        public void Add<T>(T entity) where T : class
-        {
-            _context.Add(entity);
-        }
+//        public TerminalRepository(AppDbContext appDbContext)
+//        {
+//            this._context = appDbContext;
+//        }
+//        public void Add<T>(T entity) where T : class
+//        {
+//            _context.Add(entity);
+//        }
 
-        public void Delete<T>(T entity) where T : class
-        {
-            _context.Remove(entity);
-        }
+//        public void Delete<T>(T entity) where T : class
+//        {
+//            _context.Remove(entity);
+//        }
 
-        public async Task<Terminal[]> GetAllTerminalsAsync()
-        {
-            IQueryable<Terminal> query = _context.Terminals;
-
-            
-            // Order It
-            query = query.OrderByDescending(c => c.Id); //Return Password
-
-            return await query.ToArrayAsync();
-        }
-
-        public async Task<Terminal> GetTerminalAsyncByConnectionString(string ConnectionString)
-        {
-            IQueryable<Terminal> query = _context.Terminals;
+//        public async Task<Terminal[]> GetAllTerminalsAsync()
+//        {
+//            IQueryable<Terminal> query = _context.Terminals;
 
             
-            // Order It
-            query = query.Where(c=> c.ConnectionString == ConnectionString); //Return Password
+//            // Order It
+//            query = query.OrderByDescending(c => c.Id); //Return Password
 
-            return await query.FirstOrDefaultAsync();
-        }
+//            return await query.ToArrayAsync();
+//        }
 
-        public async Task<Terminal> GetTerminalAsyncById(int id)
-        {
-            IQueryable<Terminal> query = _context.Terminals;
+//        public async Task<Terminal> GetTerminalAsyncByConnectionString(string ConnectionString)
+//        {
+//            IQueryable<Terminal> query = _context.Terminals;
+
+            
+//            // Order It
+//            query = query.Where(c=> c.ConnectionString == ConnectionString); //Return Password
+
+//            return await query.FirstOrDefaultAsync();
+//        }
+
+//        public async Task<Terminal> GetTerminalAsyncById(int id)
+//        {
+//            IQueryable<Terminal> query = _context.Terminals;
 
            
-            // Order It
-            query = query.Where(c => c.Id == id); //Return Password
+//            // Order It
+//            query = query.Where(c => c.Id == id); //Return Password
 
-            return await query.FirstOrDefaultAsync();
-        }
+//            return await query.FirstOrDefaultAsync();
+//        }
 
 
-        public async Task<bool> SaveChangesAsync()
-        {
-            return (await _context.SaveChangesAsync()) > 0;
-        }
-    }
-}
+//        public async Task<bool> SaveChangesAsync()
+//        {
+//            return (await _context.SaveChangesAsync()) > 0;
+//        }
+//    }
+//}

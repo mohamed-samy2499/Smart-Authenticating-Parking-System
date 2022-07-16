@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Parking_System_API.Data.DBContext;
 using Parking_System_API.Data.Entities;
-using Parking_System_API.Data.Repositories.CameraR;
+//using Parking_System_API.Data.Repositories.CameraR;
 using Parking_System_API.Data.Repositories.GateR;
-using Parking_System_API.Data.Repositories.HardwareR;
+//using Parking_System_API.Data.Repositories.HardwareR;
 using Parking_System_API.Data.Repositories.ParkingTransactionR;
 using Parking_System_API.Data.Repositories.ParticipantR;
 using Parking_System_API.Data.Repositories.VehicleR;
@@ -36,18 +36,18 @@ namespace Parking_System_API.Controllers
         protected readonly IHubContext<MessageHub> _messageHub;
         private readonly AppDbContext context;
         private readonly IGateRepository gateRepository;
-        private readonly ICameraRepository cameraRepository;
-        private readonly ITerminalRepository terminalRepository;
+        //private readonly ICameraRepository cameraRepository;
+        //private readonly ITerminalRepository terminalRepository;
         private readonly IParticipantRepository participantRepository;
         private readonly IVehicleRepository vehicleRepository;
         private readonly IParkingTransactionRepository parkingTransactionRepository;
         private readonly IWebHostEnvironment webHostEnvironment;
         private static readonly HttpClient client1 = new HttpClient();
-        public TerminalsController(IWebHostEnvironment webHostEnvironment, IHubContext<MessageHub> messageHub, IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
+        public TerminalsController(IWebHostEnvironment webHostEnvironment, IHubContext<MessageHub> messageHub, IGateRepository gateRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
         {
             this.gateRepository = gateRepository;
-            this.cameraRepository = cameraRepository;
-            this.terminalRepository = terminalRepository;
+            //this.cameraRepository = cameraRepository;
+            //this.terminalRepository = terminalRepository;
             this.participantRepository = participantRepository;
             this.vehicleRepository = vehicleRepository;
             this.parkingTransactionRepository = parkingTransactionRepository;
@@ -65,7 +65,7 @@ namespace Parking_System_API.Controllers
                 //Car Press Presence Sensor
 
 
-                var gate = await gateRepository.GetGateById(GateId, true);
+                var gate = await gateRepository.GetGateById(GateId);
 
                 if (gate == null)
                 {
@@ -379,7 +379,7 @@ namespace Parking_System_API.Controllers
             {
                 //Car Press Presence Sensor
 
-                var gate = await gateRepository.GetGateById(GateId, true);
+                var gate = await gateRepository.GetGateById(GateId);
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with Id {GateId} is not found." });
                 if (!gate.Service)
