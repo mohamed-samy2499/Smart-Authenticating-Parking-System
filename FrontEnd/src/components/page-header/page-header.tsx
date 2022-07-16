@@ -7,7 +7,7 @@ export const PageHeader = (props: PageHeaderProps) => {
 	const { title, action, tags, subtitle, tabs, currentTab, tabsActions } = props
 	return (
 		<div className={classNames('flex flex-col mb-4 divide-y pt-4', 'bg-white border-b', '')}>
-			<div className={classNames('flex justify-between items-end flex-1 min-w-0 pb-3', 'px-6', '')}>
+			<div className={classNames('flex justify-between items-center flex-1 min-w-0 pb-3', 'px-6', '')}>
 				<div>
 					<h2 className="text-xl font-semibold leading-10 text-primary-900 sm:text-2xl sm:truncate">
 						{title}

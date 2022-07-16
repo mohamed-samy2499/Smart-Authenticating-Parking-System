@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { GButton, GDialog } from 'components/basic-blocks'
+import { GButton, GDialog, GLoading, GTable } from 'components/basic-blocks'
 import { GTableColumn } from 'components/basic-blocks/g-table/types'
 import moment from 'moment'
 import { useRef, useState } from 'react'
@@ -55,6 +55,8 @@ const RenderActions = observer((props:any)=>{
 	return (
 		<div className='flex gap-4'>
 			<GDialog
+				maxWidth='2xl'
+				title={`${row.name} Logs`}
 				open={openLogs}
 				onClose={()=>setOpenLogs(false)}
 			>
@@ -73,7 +75,7 @@ const RenderActions = observer((props:any)=>{
 				open={openEdit}
 				onClose={()=>setOpenEdit(false)}
 			>
-				<CreateEditCustomer row={row} />
+				<CreateEditCustomer row={row} onClose={()=>setOpenEdit(false)} />
 			</GDialog>
 			<GButton 
 				label='Edit'
@@ -87,7 +89,7 @@ const RenderActions = observer((props:any)=>{
 			>
 				<CreateEditCustomer />
 			</GDialog> */}
-			<Dummy handleChange={handleFileChange}/>
+			<UploadVideoButton handleChange={handleFileChange}/>
 		</div>
 	)
 	async function handleFileChange(files:any) {
@@ -106,8 +108,8 @@ const RenderActions = observer((props:any)=>{
 
 const RenderLogs = observer((props:any)=>{
 	const {id} = props
-	const {customersStore} =useStores()
-	const {uploadVideo,getCustomerLogs,logs} = customersStore
+	const {customersStore,uiStore} =useStores()
+	const {getCustomerLogs,logs} = customersStore
 
 
 	{console.log(logs)}
@@ -116,14 +118,43 @@ const RenderLogs = observer((props:any)=>{
 			await getCustomerLogs(id)
 		})()
 	},[])
+
+
+	const columns: Array<GTableColumn<any>> = [
+		{ label: 'Time', path: 'time', className: '-mr-6' ,render: (row:any) => <RenderDate row={row} />},
+		{ label: 'Gate', path: 'gate', className: '-mr-6',render: (row:any) => <RenderGate row={row} /> },
+		{ label: 'Plate No.', path: 'plateNumberId'},
+	]
+
+	const RenderDate = (props:any)=>{
+		const {row} = props
+		return (
+			<div>
+				{moment(row?.dateTimeTransaction).format('LL')||''}
+			</div>)
+	}
+	const RenderGate = (props:any)=>{
+		const {row} = props
+		return (
+			<div>
+				{row.isEnter?'Enterance Gate':'Exit Gate'}
+			</div>)
+	}
 	return(
-		<div>logs</div>
+		<div>
+			{uiStore.apiCallStates.getCustomerLogs==='loading' ? <GLoading />:
+				<GTable
+					columns={columns}
+					data={logs}
+					emptyString='No logs available for this user'
+				/>}
+		</div>
 	)
 })
 
 
 
-const Dummy = (props:any) => {
+const UploadVideoButton = (props:any) => {
 	const {handleChange} = props
 	const inputFileRef:any = React.useRef()
 
@@ -144,9 +175,10 @@ const Dummy = (props:any) => {
 				ref={inputFileRef}
 				onChangeCapture={onFileChangeCapture}
 				style={{ display: 'none' }}
+				accept="video/mp4,video/x-m4v,video/*"
 			/>
 			<GButton
-				label='Select File'
+				label='Upload Identifier video'
 				variant='outlined'
 				color='primary'
 				onClick={()=>onBtnClick()}>Select file

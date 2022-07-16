@@ -4,22 +4,24 @@ import { ApiCallStates } from '../../mobx-store/types'
 import http from '../../Services/httpService'
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 import { observer } from 'mobx-react'
-import { GButton, GLoading, GSection } from 'components/basic-blocks'
+import { GButton, GListbox, GLoading, GSection } from 'components/basic-blocks'
 import { PageHeader } from 'components/page-header'
 import {AiFillCheckCircle, AiOutlineLoading} from 'react-icons/ai'
 import {ImCross} from 'react-icons/im'
 
 
 
+
 export const Control =  observer((props: any) =>{
 	const [connection, setConnection] = useState<HubConnection|null>(null)
+	const [video, setVideo] = useState<any>(undefined)
 	
 	const [enteranceGate,setEnteranceGate] = useState<any>(
 		{
 			face:{img:undefined,info:'',status:'idle'},
 			plate:{img:undefined,info:'',status:'idle'},
 			status:false,
-			message:''
+			message:'',
 		}
 	)
 	const [exitGate,setExitGate] = useState<any>(
@@ -27,13 +29,41 @@ export const Control =  observer((props: any) =>{
 			face:{img:undefined,info:'',status:'idle'},
 			plate:{img:undefined,info:'',status:'idle'},
 			status:false,
-			message:''
+			message:'',
 		}
 	)
+
+	const options = [
+		{label:'LP7',url:'./data/LP7_trimmed.mp4'},
+		{label:'LP8',url:'./data/LP8_trimmed.mp4'},
+		{label:'LP9',url:'./data/LP9_trimmed.mp4'},
+	]
+
+	const handleSelectChange = (e:any)=>{
+		setVideo(e)
+		if(e){
+			try{
+				http.post('http://127.0.0.1:5000/camFeed',{address:e.url})
+			}catch(e){
+				console.log(e)
+			}
+		}
+
+	}
+
 	return (
 		<>
 			<PageHeader 
 				title='Gate Control'
+				action={<div className='mb-4 bg-slate-100 p-2 min-w-[200px]'>
+					<GListbox
+						placeholder='Select plate Video'
+						options={options}
+						value={video}
+						onChange={(e)=>handleSelectChange(e)}
+						renderLabel={(e)=>e.label}
+					/>
+				</div>}
 			/>
 			<div className='flex gap-4'>
 				<div className='flex-1'>
@@ -42,6 +72,7 @@ export const Control =  observer((props: any) =>{
 						actions={<div className={`bg-${enteranceGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{enteranceGate.status?'Gate Opened':' Gate Closed'}</div>}
 					>
 						{/* Face Section */}
+						
 						<div className='flex gap-2'>
 							<GButton
 								size='sm'
@@ -137,6 +168,7 @@ export const Control =  observer((props: any) =>{
 					>
 						{/* Face Section */}
 						<div className='flex gap-2'>
+							
 							<GButton
 								size='sm'
 								label='Start Detection'
