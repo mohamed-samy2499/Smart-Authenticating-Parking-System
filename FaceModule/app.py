@@ -140,8 +140,8 @@ def home():
                                     # only send if got request
                                     # content = r.text['NP']
                                     person_name = HumanNames[best_class_indices[0]]
-                                    cv2.imwrite("detected_face.jpeg", frame)
-                                    return jsonify({"Id":person_name,"face":'{}/detected_face.jpeg'.format(os.getcwd())})
+                                    cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                                    return jsonify({"Id":person_name,"face":'{}'.format(os.path.join(os.getcwd(),"detected_face.jpeg"))})
                                     print("Predictions : [ name: {} , accuracy: {:.3f} ]".format(HumanNames[best_class_indices[0]],best_class_probabilities[0]))
                                     cv2.rectangle(frame, (xmin, ymin-20), (xmax, ymin-2), (0, 255,255), -1)
                                     cv2.putText(frame, '{}'.format(result_names), (xmin,ymin-5), cv2.FONT_HERSHEY_COMPLEX_SMALL,
