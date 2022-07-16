@@ -39,11 +39,13 @@ export const Control =  observer((props: any) =>{
 		{label:'LP9',url:'./data/LP9_trimmed.mp4'},
 	]
 
-	const handleSelectChange = (e:any)=>{
+	const handleSelectChange = async (e:any)=>{
 		setVideo(e)
 		if(e){
+			const formData = new FormData()
+			formData.append('address', e.url)
 			try{
-				http.post('http://127.0.0.1:5000/camFeed',{address:e.url})
+				await http.post('http://127.0.0.1:5000/camFeed',formData)
 			}catch(e){
 				console.log(e)
 			}
