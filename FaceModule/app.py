@@ -16,6 +16,7 @@ import tensorflow.compat.v1 as tf
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import base64
 
 # model_flag = 1
 # CameraUser = ""
@@ -141,7 +142,9 @@ def home():
                                     # content = r.text['NP']
                                     person_name = HumanNames[best_class_indices[0]]
                                     cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
-                                    return jsonify({"Id":person_name,"face":'{}'.format(os.path.join(os.getcwd(),"detected_face.jpeg"))})
+                                    with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                                        img = base64.b64encode(file.read()).decode('utf-8')
+                                        return jsonify({"Id":person_name,"face": img})
                                     print("Predictions : [ name: {} , accuracy: {:.3f} ]".format(HumanNames[best_class_indices[0]],best_class_probabilities[0]))
                                     cv2.rectangle(frame, (xmin, ymin-20), (xmax, ymin-2), (0, 255,255), -1)
                                     cv2.putText(frame, '{}'.format(result_names), (xmin,ymin-5), cv2.FONT_HERSHEY_COMPLEX_SMALL,

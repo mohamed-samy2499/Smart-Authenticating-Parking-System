@@ -144,14 +144,14 @@ namespace Parking_System_API.Controllers
                 
                 var ParticipantId = ParticipantInfo[1];
 
-                var face_path = ParticipantInfo[0];
-                Image face_image = Image.FromFile(face_path);
-                var i3 = new Bitmap(face_image);
-                //send i2 to the frontend on sockets
-                var imgName = $"face_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpeg";
-                globalImgFaceName = imgName;
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", imgName);
-                i3.Save(filePath, ImageFormat.Jpeg);
+                //var face_path = ParticipantInfo[0];
+                //Image face_image = Image.FromFile(face_path);
+                //var i3 = new Bitmap(face_image);
+                ////send i2 to the frontend on sockets
+                //var imgName = $"face_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpeg";
+                //globalImgFaceName = imgName;
+                //var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", imgName);
+                //i3.Save(filePath, ImageFormat.Jpeg);
                 if (ParticipantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
@@ -327,7 +327,17 @@ namespace Parking_System_API.Controllers
             byte[] response = client.DownloadData(Url);
             string res = System.Text.Encoding.ASCII.GetString(response);
             JObject json = JObject.Parse(res);
-            var face_path = json["face"].ToString();
+            byte[] bytes = Convert.FromBase64String(json["face"].ToString());
+
+            MemoryStream ms = new MemoryStream(bytes);
+            Image ret = Image.FromStream(ms);
+            var i2 = new Bitmap(ret);
+            //send i2 to the frontend on sockets
+            var imgName = $"face_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpeg";
+            globalImgFaceName = imgName;
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", imgName);
+            i2.Save(filePath, ImageFormat.Jpeg);
+            var face_path = "";
             var id = json["Id"].ToString();
             var list =new List<string>(); 
             list.Add(face_path);
