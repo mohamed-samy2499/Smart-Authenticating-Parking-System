@@ -77,7 +77,7 @@ def home():
     # with open(plate_txt_path,"r") as b:
     #     print(b.read())
     person_name = ""
-    conuter =0
+    counter = 0
     tmp = "-100"
     while True:
         # print(minsize)
