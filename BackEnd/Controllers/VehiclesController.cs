@@ -123,6 +123,39 @@ namespace Parking_System_API.Controllers
         }
 
 
+        [HttpPut("{plateID}/update-admin"), Authorize(Roles ="admin, operator")]
+        public async Task<ActionResult<VehicleResponseModel>> UpdateVehicle(string plateID, VehicleEditAdminModel inputModel)
+        {
+            try
+            {
+                var o = await vehicleRepository.GetVehicleAsyncByPlateNumber(plateID);
+                if (o == null)
+                {
+                    return NotFound($"Vehicle with PlateNumber {plateID} is not Found");
+                }
+
+                o.BrandName = inputModel.BrandName;
+                o.StartSubscription = inputModel.StartSubscription;
+                o.EndSubscription = inputModel.EndSubscription;
+                o.Color = inputModel.Color;
+                o.SubCategory = inputModel.SubCategory;
+
+                if(! await vehicleRepository.SaveChangesAsync())
+                {
+                    return BadRequest("Vehicle Not Saved");
+                }
+
+                return mapper.Map<VehicleResponseModel>(o);
+
+
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Error {ex}");
+            }
+        }
+
+
         [HttpGet, Authorize(Roles = "admin, operator")]
         public async Task<ActionResult<VehicleResponseModel[]>> GetVehicles()
         {

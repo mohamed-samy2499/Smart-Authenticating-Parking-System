@@ -33,12 +33,6 @@ export const Control =  observer((props: any) =>{
 	)
 
 	const options = [
-		{label:'LP1',url:'./data/LP1_trimmed.mp4'},
-		{label:'LP2',url:'./data/LP2_trimmed.mp4'},
-		{label:'LP3',url:'./data/LP3_trimmed.mp4'},
-		{label:'LP4',url:'./data/LP4_trimmed.mp4'},
-		{label:'LP5',url:'./data/LP5_trimmed.mp4'},
-		{label:'LP6',url:'./data/LP6_trimmed.mp4'},
 		{label:'LP7',url:'./data/LP7_trimmed.mp4'},
 		{label:'LP8',url:'./data/LP8_trimmed.mp4'}
 	]
