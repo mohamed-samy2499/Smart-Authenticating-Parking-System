@@ -95,7 +95,7 @@ export const Control =  observer((props: any) =>{
 								color='success'
 								onClick={()=>{departureGate('1','enter')}}
 								loading={uiStore.apiCallStates.enteranceGate==='loading'}
-								disabled={enteranceGate.face.status==='idle'||uiStore.apiCallStates.enteranceGate==='loading'}
+								disabled={!(enteranceGate.status===true)||uiStore.apiCallStates.enteranceGate==='loading'}
 							/>
 							<GButton
 								size='sm'
@@ -202,7 +202,7 @@ export const Control =  observer((props: any) =>{
 								color='success'
 								onClick={()=>{departureGate('2','exit')}}
 								loading={uiStore.apiCallStates.exitGate==='loading'}
-								disabled={exitGate.face.status==='idle'}
+								disabled={!(exitGate.status===true) || uiStore.apiCallStates.enteranceGate==='loading'}
 							/>
 							<GButton
 								size='sm'
@@ -211,7 +211,7 @@ export const Control =  observer((props: any) =>{
 								color='danger'
 								onClick={()=>{departureGate('2','exit')}}
 								loading={uiStore.apiCallStates.exitGate==='loading'}
-								disabled={exitGate.face.status==='idle'}
+								disabled={exitGate.face.status==='idle'|| uiStore.apiCallStates.exitGate==='loading'}
 							/>
 						</div>	
 						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
