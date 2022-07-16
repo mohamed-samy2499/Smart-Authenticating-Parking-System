@@ -50,6 +50,9 @@ def cam_feed():
     # print(request)
     global video_path
     video_path = request.form.get('address')
+
+    if video_path is None :
+        video_path = './data/LP7_trimmed.mp4'
     return jsonify({"Message": video_path})
 
 @app.route('/start', methods=['GET'])
