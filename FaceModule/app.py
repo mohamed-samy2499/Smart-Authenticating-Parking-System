@@ -167,8 +167,10 @@ def home():
                             #                     k.write(person_name)
                             counter+=1
                             if counter == 15:
-                                cv2.imwrite("detected_face.jpeg", frame)
-                                return jsonify({"Id":"unknown" , "face":'{}/detected_face.jpeg'.format(os.getcwd())})
+                                cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                                with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                                    img = base64.b64encode(file.read()).decode('utf-8')
+                                    return jsonify({"Id":"unknown" , "face":img})
                             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
                             cv2.rectangle(frame, (xmin, ymin-20), (xmax, ymin-2), (0, 255,255), -1)
                             cv2.putText(frame, "?", (xmin,ymin-5), cv2.FONT_HERSHEY_COMPLEX_SMALL,
@@ -177,8 +179,10 @@ def home():
                         counter+=1
                         print("error")
                         if counter == 15:
-                            cv2.imwrite("detected_face.jpeg", frame)
-                            return jsonify({"Id":"unknown" , "face":'{}/detected_face.jpeg'.format(os.getcwd())})
+                            cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                            with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                                img = base64.b64encode(file.read()).decode('utf-8')
+                                return jsonify({"Id":"unknown" , "face":img})
                         
             endtimer = time.time()
             fps = 1/(endtimer-timer)
