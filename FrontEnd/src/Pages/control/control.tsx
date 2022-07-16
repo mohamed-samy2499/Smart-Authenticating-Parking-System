@@ -21,16 +21,16 @@ export const Control =  observer((props: any) =>{
 	
 	const [enteranceGate,setEnteranceGate] = useState<any>(
 		{
-			face:{img:undefined,info:'',status:'idle'},
-			plate:{img:undefined,info:'',status:'idle'},
+			face:{img:undefined,info:'',status:'idle',id:''},
+			plate:{img:undefined,info:'',status:'idle',id:''},
 			status:false,
 			message:'',
 		}
 	)
 	const [exitGate,setExitGate] = useState<any>(
 		{
-			face:{img:undefined,info:'',status:'idle'},
-			plate:{img:undefined,info:'',status:'idle'},
+			face:{img:undefined,info:'',status:'idle',id:''},
+			plate:{img:undefined,info:'',status:'idle',id:''},
 			status:false,
 			message:'',
 		}
@@ -55,7 +55,8 @@ export const Control =  observer((props: any) =>{
 		}
 
 	}
-
+	console.log('enteranceGate',enteranceGate)
+	console.log('exitGate',exitGate)
 	return (
 		<>
 			<PageHeader 
@@ -303,15 +304,13 @@ export const Control =  observer((props: any) =>{
 	}
 
 	async function departureGate(id: string,gate:'enter'|'exit') {
-		
-
 		if(gate === 'enter'){
 			try {
 				uiStore.setCallState('enteranceGate','loading')
-				await http.post(`Terminals/CarDeparture/${id}`)
-				setEnteranceGate(	{
-					face:{img:undefined,info:'',status:'idle'},
-					plate:{img:undefined,info:'',status:'idle'},
+				await http.post(`Terminals/CarDeparture/${id}`,{plateId:enteranceGate.plate.id,faceId:enteranceGate.face.id})
+				setEnteranceGate({
+					face:{img:undefined,info:'',status:'idle',id:''},
+					plate:{img:undefined,info:'',status:'idle',id:''},
 					status:false,
 					message:'',
 				})
@@ -323,10 +322,10 @@ export const Control =  observer((props: any) =>{
 		if(gate === 'exit'){
 			try {
 				uiStore.setCallState('exitGate','loading')
-				await http.post(`Terminals/CarDeparture/${id}`)
-				setExitGate(	{
-					face:{img:undefined,info:'',status:'idle'},
-					plate:{img:undefined,info:'',status:'idle'},
+				await http.post(`Terminals/CarDeparture/${id}`,{plateId:exitGate.plate.id,faceId:exitGate.face.id})
+				setExitGate(			{
+					face:{img:undefined,info:'',status:'idle',id:''},
+					plate:{img:undefined,info:'',status:'idle',id:''},
 					status:false,
 					message:'',
 				})
@@ -348,6 +347,15 @@ export const Control =  observer((props: any) =>{
 	
 			connectionq.on('enteranceGateDetection', (res) => {
 				if(res.model==='face'){
+					if(res.status==='success'){
+						setEnteranceGate((prevState:any)=>(
+							{...prevState,
+								face:{...prevState.face,
+									id:res.message.split(':')[1]
+								}
+							}
+						))
+					}
 					setEnteranceGate((prevState:any)=>(
 						{...prevState,
 							face:{...prevState.face,
@@ -359,6 +367,15 @@ export const Control =  observer((props: any) =>{
 					))
 				}
 				if(res.model==='plate'){
+					if(res.status==='success'){
+						setEnteranceGate((prevState:any)=>(
+							{...prevState,
+								plate:{...prevState.plate,
+									id:res.message.split(':')[1]
+								}
+							}
+						))
+					}
 					setEnteranceGate((prevState:any)=>(
 						{...prevState,
 							plate:{...prevState.plate,
@@ -392,6 +409,15 @@ export const Control =  observer((props: any) =>{
 			connectionq.on('exitGateDetection', (res) => {
 				if(res.model==='face'){
 					console.log('entered face enteranceGate',res)
+					if(res.status==='success'){
+						setExitGate((prevState:any)=>(
+							{...prevState,
+								face:{...prevState.face,
+									id:res.message.split(':')[1]
+								}
+							}
+						))
+					}
 					setExitGate((prevState:any)=>(
 						{...prevState,
 							face:{...prevState.face,
@@ -404,6 +430,15 @@ export const Control =  observer((props: any) =>{
 				}
 				if(res.model==='plate'){
 					console.log('entered plate enteranceGate',res)
+					if(res.status==='success'){
+						setExitGate((prevState:any)=>(
+							{...prevState,
+								plate:{...prevState.plate,
+									id:res.message.split(':')[1]
+								}
+							}
+						))
+					}
 					setExitGate((prevState:any)=>(
 						{...prevState,
 							plate:{...prevState.plate,
