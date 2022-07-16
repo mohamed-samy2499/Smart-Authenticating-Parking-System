@@ -846,5 +846,35 @@ namespace Parking_System_API.Controllers
             }
         }
 
+        [HttpPost("manualGateControl/{GateId:int}")]
+        public async Task<IActionResult> GateControl(int GateId)
+        {
+            try
+            {
+                var gate = await gateRepository.GetGateById(GateId);
+                if (gate == null)
+                    return NotFound(new { Error = $"Gate with id {GateId} doesn't exit" });
+                gate.State = !gate.State ;
+                if (!await gateRepository.SaveChangesAsync())
+                {
+                    return Ok(new { Error = "Gate Not Closed" });
+                }
+                await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                           new SocketMessage()
+                           {
+                               model = "gate",
+                               status = (gate.State)? "open": "closed",
+                               terminate = false,
+                               message = "",
+                               imagePath = ""
+                           });
+                return Ok(new { GateStatus = "${gate.State}" });
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
+            }
+        }
+
     }
 }
