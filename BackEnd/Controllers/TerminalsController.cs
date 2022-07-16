@@ -43,6 +43,9 @@ namespace Parking_System_API.Controllers
         private readonly IParkingTransactionRepository parkingTransactionRepository;
         private readonly IWebHostEnvironment webHostEnvironment;
         private static readonly HttpClient client1 = new HttpClient();
+        public static string globalImgPlateName { get; set; } = "";
+        public static string globalImgFaceName { get; set; } = "";
+
         public TerminalsController(IWebHostEnvironment webHostEnvironment, IHubContext<MessageHub> messageHub, IGateRepository gateRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
         {
             this.gateRepository = gateRepository;
@@ -145,7 +148,9 @@ namespace Parking_System_API.Controllers
                 Image face_image = Image.FromFile(face_path);
                 var i3 = new Bitmap(face_image);
                 //send i2 to the frontend on sockets
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "face.jpeg");
+                var imgName = $"face_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpeg";
+                globalImgFaceName = imgName;
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", imgName);
                 i3.Save(filePath, ImageFormat.Jpeg);
                 if (ParticipantId == "InternalError")
                 {
@@ -182,8 +187,8 @@ namespace Parking_System_API.Controllers
                     return Ok(new { Error = "ParticipantId is null" });
             }else
                 {
-                    var filePath_face = "https://localhost:44380/face_verify/face.jpeg";
-                    var filePath_plate = "https://localhost:44380/face_verify/plate.jpeg";
+                    var filePath_face = $"https://localhost:44380/face_verify//{globalImgFaceName}";
+                    var filePath_plate = $"https://localhost:44380/face_verify//{globalImgPlateName}";
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                     new SocketMessage()
                     {
@@ -362,7 +367,9 @@ namespace Parking_System_API.Controllers
                 Image ret = Image.FromStream(ms);
                 var i2 = new Bitmap(ret);
                 //send i2 to the frontend on sockets
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "plate.jpeg");
+                var imgName = $"plate_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpeg";
+                globalImgPlateName = imgName;
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", imgName);
                 i2.Save(filePath, ImageFormat.Jpeg);
                 return json["Id"].ToString();
             }
