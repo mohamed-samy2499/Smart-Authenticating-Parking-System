@@ -230,7 +230,7 @@ namespace Parking_System_API.Controllers
 
                 Email.EmailCode.SendEmail(participant.Email, password);
                 var response_model = mapper.Map<ParticipantResponseModel>(participant);
-                return Created(linkGenerator.GetPathByAction("GetParticipant", "Participants", new { id = participant.Id }), new { Participant = response_model, Message = "Please Add a photo" });
+                return Created(linkGenerator.GetPathByAction("GetParticipant", "Participants", new { id = participant.Id }), new { Participant = response_model });
 
             }
             catch (Exception)
