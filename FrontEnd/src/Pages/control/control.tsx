@@ -25,7 +25,6 @@ export const Control =  observer((props: any) =>{
 			plate:{img:undefined,info:'',status:'idle',id:''},
 			status:false,
 			message:'',
-			
 		}
 	)
 	const [exitGate,setExitGate] = useState<any>(
@@ -34,7 +33,6 @@ export const Control =  observer((props: any) =>{
 			plate:{img:undefined,info:'',status:'idle',id:''},
 			status:false,
 			message:'',
-			
 		}
 	)
 
@@ -306,15 +304,13 @@ export const Control =  observer((props: any) =>{
 	}
 
 	async function departureGate(id: string,gate:'enter'|'exit') {
-		
-
 		if(gate === 'enter'){
 			try {
 				uiStore.setCallState('enteranceGate','loading')
 				await http.post(`Terminals/CarDeparture/${id}`,{plateId:enteranceGate.plate.id,faceId:enteranceGate.face.id})
-				setEnteranceGate(	{
-					face:{img:undefined,info:'',status:'idle'},
-					plate:{img:undefined,info:'',status:'idle'},
+				setEnteranceGate({
+					face:{img:undefined,info:'',status:'idle',id:''},
+					plate:{img:undefined,info:'',status:'idle',id:''},
 					status:false,
 					message:'',
 				})
@@ -327,9 +323,9 @@ export const Control =  observer((props: any) =>{
 			try {
 				uiStore.setCallState('exitGate','loading')
 				await http.post(`Terminals/CarDeparture/${id}`,{plateId:exitGate.plate.id,faceId:exitGate.face.id})
-				setExitGate(	{
-					face:{img:undefined,info:'',status:'idle'},
-					plate:{img:undefined,info:'',status:'idle'},
+				setExitGate(			{
+					face:{img:undefined,info:'',status:'idle',id:''},
+					plate:{img:undefined,info:'',status:'idle',id:''},
 					status:false,
 					message:'',
 				})
