@@ -62,11 +62,11 @@ export const LoginPage = observer(()=> {
 									</h4>
 								)} */}
 							</div>
-							<div className="text-sm flex justify-end items-center">
+							{/* <div className="text-sm flex justify-end items-center">
 								<a href="#" className="font-medium text-primary-600 hover:text-primary-500">
                     Forgot your password?
 								</a>
-							</div>
+							</div> */}
 							<GButton
 								onClick={()=>handleSubmit()}
 								variant="contained"
