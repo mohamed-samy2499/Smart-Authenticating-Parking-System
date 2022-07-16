@@ -96,15 +96,15 @@ namespace Parking_System_API.Controllers
                     }
 
                     }
-                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                    new SocketMessage()
-                    {
-                        model = "gate",
-                        status = "closed",
-                        terminate = false,
-                        message = $"Gate is closed",
-                        imagePath = ""
-                    });
+                //await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                //    new SocketMessage()
+                //    {
+                //        model = "gate",
+                //        status = "closed",
+                //        terminate = false,
+                //        message = $"Gate is closed",
+                //        imagePath = ""
+                //    });
                 //gate is closed
                 //calling APNR model
                 string PlateNum = "";
@@ -155,7 +155,10 @@ namespace Parking_System_API.Controllers
                 if (ParticipantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+                   new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
                     return Ok(new { message = "face recognition failed" });
 
                 }
@@ -171,6 +174,8 @@ namespace Parking_System_API.Controllers
                            message = $"ParticipantId is unknown",
                            imagePath = ""
                        });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
                     return Ok(new { Error = "ParticipantId is unknown" });
                 }
 
@@ -184,8 +189,10 @@ namespace Parking_System_API.Controllers
                            message = $"ParticipantId is null",
                            imagePath = ""
                        });
+                 
                     return Ok(new { Error = "ParticipantId is null" });
-            }else
+            }
+                else
                 {
                     var filePath_face = $"https://localhost:44380/face_verify//{globalImgFaceName}";
                     var filePath_plate = $"https://localhost:44380/face_verify//{globalImgPlateName}";
@@ -505,12 +512,12 @@ namespace Parking_System_API.Controllers
 
                 var ParticipantId = ParticipantInfo[1];
 
-                var face_path = ParticipantInfo[0];
-                Image face_image = Image.FromFile(face_path);
-                var i3 = new Bitmap(face_image);
+                //var face_path = ParticipantInfo[0];
+                //Image face_image = Image.FromFile(face_path);
+                //var i3 = new Bitmap(face_image);
                 //send i2 to the frontend on sockets
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "face.jpeg");
-                i3.Save(filePath, ImageFormat.Jpeg);
+                //var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "face.jpeg");
+                //i3.Save(filePath, ImageFormat.Jpeg);
                 if (ParticipantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
@@ -566,8 +573,8 @@ namespace Parking_System_API.Controllers
                 }
                 else
                 {
-                    var filePath_face = "https://localhost:44380/face_verify/face.jpeg";
-                    var filePath_plate = "https://localhost:44380/face_verify/plate.jpeg";
+                    var filePath_face = $"https://localhost:44380/face_verify/{globalImgFaceName}";
+                    var filePath_plate = $"https://localhost:44380/face_verify/{globalImgPlateName}";
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
                     new SocketMessage()
                     {
