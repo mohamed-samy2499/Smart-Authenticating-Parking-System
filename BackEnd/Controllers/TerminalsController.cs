@@ -261,7 +261,28 @@ namespace Parking_System_API.Controllers
                         if (Timenow > car.StartSubscription && Timenow < car.EndSubscription)
                         {
                             //Parking Transaction
-                           
+                            parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = true });
+                            car.IsPresent = true;
+                            gate.State = true;
+                            if (!await parkingTransactionRepository.SaveChangesAsync())
+                            {
+                                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                               new SocketMessage()
+                               {
+                                   model = "gate",
+                                   status = "closed",
+                                   terminate = false,
+                                   message = $"Enter Transaction is not completed",
+                                   imagePath = ""
+                               });
+
+
+                                return Ok(new
+                                {
+                                    Error = "Enter Transaction is not completed",
+                                    GateStatus = "${ gate.State}"
+                                 });
+                            }
                             
                             await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                             new SocketMessage()
@@ -713,28 +734,7 @@ namespace Parking_System_API.Controllers
                 {
 
                 }
-                parkingTransactionRepository.Add(new ParkingTransaction() { ParticipantId = Person.Id, PlateNumberId = car.PlateNumberId, DateTimeTransaction = Timenow, isEnter = true });
-                car.IsPresent = true;
-                gate.State = true;
-                if (!await parkingTransactionRepository.SaveChangesAsync())
-                {
-                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                   new SocketMessage()
-                   {
-                       model = "gate",
-                       status = "closed",
-                       terminate = false,
-                       message = $"Enter Transaction is not completed",
-                       imagePath = ""
-                   });
 
-
-                    return Ok(new
-                    {
-                        Error = "Enter Transaction is not completed",
-                        GateStatus = "${ gate.State}"
-                    });
-                }
                 await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                            new SocketMessage()
                            {
