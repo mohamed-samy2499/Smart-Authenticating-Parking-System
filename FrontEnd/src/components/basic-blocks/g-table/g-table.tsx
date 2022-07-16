@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { GTableProps, GTableState } from './types'
 
 export function GTable<T>(props: GTableProps<T>) {
-	const { columns, data, pageSize, showHeader = true, rowClassName } = props
+	const { columns, data, pageSize, showHeader = true, rowClassName,emptyString } = props
 
 	const [state, setState] = useState<GTableState>({
 		page: 1,
@@ -33,7 +33,7 @@ export function GTable<T>(props: GTableProps<T>) {
 	if (data.length <= 0) {
 		return (
 			<div className='text-center py-4'>
-				<span className='text-sm text-gray-500'>Nothing to show here</span>
+				<span className='text-sm text-gray-500'>{emptyString||'Nothing to show here'}</span>
 			</div>
 		)
 	}

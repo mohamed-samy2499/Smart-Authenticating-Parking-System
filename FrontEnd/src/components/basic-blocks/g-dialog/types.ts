@@ -18,4 +18,5 @@ export interface GDialogProps {
 	children?: ReactNode,
 	showClose?: boolean
 	className?: string
+	maxWidth?: 'md' | 'lg' | 'xl' | '2xl' | '3xl'
 }

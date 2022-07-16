@@ -3,6 +3,7 @@ export interface GTableProps<T> {
 	data: Array<T>
 	showHeader?: boolean
 	pageSize?: number
+	emptyString?: string
 	rowClassName?: (item: T) => string
 }
 

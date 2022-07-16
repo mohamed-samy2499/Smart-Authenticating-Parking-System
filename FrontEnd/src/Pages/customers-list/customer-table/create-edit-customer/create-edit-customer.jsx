@@ -19,12 +19,13 @@ import { Link, useLocation } from 'react-router-dom'
 import { LicencePlate } from '../../../../components/licencePlate'
 
 import './create-edit-customer.css'
+import { GLoading } from 'components/basic-blocks'
 
 export const CreateEditCustomer = observer((props) => {
-	const {row} = props
-	const data = row?.row
+	const {row,onClose} = props
+	const data = row
 
-	const { customersStore } = useStores()
+	const { customersStore,uiStore } = useStores()
 	const { createCustomer, updateCustomer } = customersStore
 	const [errors, setErrors] = useState({ nid: '' })
 	console.log('data',data)
@@ -63,7 +64,7 @@ export const CreateEditCustomer = observer((props) => {
 			? console.log('Update not working for now', formData)
 			: validate() && createCustomer(formData)
 
-		data ? updateCustomer(formData, data.id) : createCustomer(formData)
+		data ? updateCustomer(formData, data.id,onClose) : createCustomer(formData,onClose)
 	}
 	return (
 		<Container component="main" maxWidth="xs">
@@ -260,7 +261,7 @@ export const CreateEditCustomer = observer((props) => {
 							</Grid>
 						</Grid>
 
-						<Grid item xs={12} sm={12}>
+						{/* <Grid item xs={12} sm={12}>
 							<label htmlFor="upload-photo">
 								<input
 									style={{ display: 'none' }}
@@ -279,7 +280,7 @@ export const CreateEditCustomer = observer((props) => {
                   Upload your face Photo
 								</Button>
 							</label>
-						</Grid>
+						</Grid> */}
 						{/* <Grid item xs={12} sm={12}>
               <TextField
                 // onChange={e => console.log("hello")}
@@ -326,7 +327,7 @@ export const CreateEditCustomer = observer((props) => {
 						variant="contained"
 						sx={{ mt: 3, mb: 2 }}
 					>
-            SAVE
+						{uiStore.apiCallStates.mutateCustomers==='loading'?<GLoading />: 'SAVE'}
 					</Button>
 				</Box>
 			</Box>

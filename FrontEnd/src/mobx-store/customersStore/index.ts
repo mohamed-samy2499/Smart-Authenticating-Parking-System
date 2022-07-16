@@ -16,16 +16,20 @@ export default class CustomersStore {
 	getCustomersState: ApiCallStates = ApiCallStates.IDLE
 	logs: any[] = []
 
-	createCustomer = async (data: customerData) => {
+	createCustomer = async (data: customerData, onClose: () => void) => {
 		// const newArray = this.customersArray;
 		// newArray.push(data);
 		// this.customersArray = newArray;
 		// history.push("/admin/customers");
 		try {
+			this.uiStore.setCallState('mutateCustomers', 'loading')
 			await customerServices.createCustomer(data)
-			history.push('/admin/customers')
+			onClose()
+			this.getAllCustomers()
+			this.uiStore.setCallState('mutateCustomers', 'success', 'Customer created!')
 		} catch (error) {
 			console.log(error)
+			this.uiStore.setCallState('mutateCustomers', 'loading', 'Failed to create customer')
 		}
 	}
 
@@ -40,12 +44,16 @@ export default class CustomersStore {
 			console.log(error)
 		}
 	}
-	updateCustomer = async (data: any, id: any) => {
+	updateCustomer = async (data: any, id: any, onClose: () => void) => {
 		try {
+			this.uiStore.setCallState('mutateCustomers', 'loading')
 			await customerServices.updateCustomer(data, id)
-			history.push('/admin/customers')
+			this.getAllCustomers()
+			onClose()
+			this.uiStore.setCallState('mutateCustomers', 'success', 'Customer update!')
 		} catch (error) {
 			console.log(error)
+			this.uiStore.setCallState('mutateCustomers', 'error', 'Failed to update customer')
 		}
 	}
 

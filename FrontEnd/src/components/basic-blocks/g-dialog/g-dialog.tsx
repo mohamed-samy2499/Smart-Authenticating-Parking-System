@@ -17,17 +17,18 @@ export function GDialog(props: GDialogProps) {
 		open = false,
 		onClose,
 		className,
-		showClose = true
+		showClose = true,
+		maxWidth='lg'
 	} = props
 
 	const Icon = icon
 
-	const minW = {
-		md: 'min-w-md',
-		lg: 'min-w-lg',
-		xl: 'min-w-xl',
-		'2xl': 'min-w-2xl',
-		'3xl': 'min-w-3xl',
+	const maxW = {
+		'md': 'max-w-md',
+		'lg': 'max-w-lg',
+		'xl': 'max-w-xl',
+		'2xl': 'max-w-2xl',
+		'3xl': 'max-w-3xl',
 	}
 
 	return (
@@ -59,7 +60,7 @@ export function GDialog(props: GDialogProps) {
 						leaveFrom="opacity-100 translate-y-0 sm:scale-100"
 						leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
 					>
-						<div className={classNames('inline-block align-bottom bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full p-6', className || '')} >
+						<div className={classNames(`inline-block align-bottom bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:align-middle sm:${maxW[maxWidth]} sm:w-full p-6`, className || '')} >
 							<div className="sm:flex sm:items-start">
 								{icon && <div className={classNames('mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10')}>
 									<Icon className={classNames('h-6 w-6 text-gray-700')} />
@@ -71,6 +72,7 @@ export function GDialog(props: GDialogProps) {
 									<Dialog.Title as="h6" className="text-sm text-gray-700">
 										{subtitle}
 									</Dialog.Title>
+									
 									{children || <div className="mt-2">
 										<p className="text-sm text-gray-500">
 											{description}

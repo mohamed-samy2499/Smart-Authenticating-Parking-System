@@ -18,7 +18,7 @@ export const CustomerPage = observer(() => {
 	if(!customers) return <GLoading />
 	return (
 		<GSection 
-			title="System Users"
+			title="Customers"
 			actions={<AddCustomer />}
 			
 		
@@ -38,7 +38,7 @@ export const CustomerPage = observer(() => {
 					open={openEdit}
 					onClose={()=>setOpenEdit(false)}
 				>
-					<CreateEditCustomer />
+					<CreateEditCustomer onClose={()=>setOpenEdit(false)} />
 				</GDialog>
 				<GButton 
 					label='Create Customer'
