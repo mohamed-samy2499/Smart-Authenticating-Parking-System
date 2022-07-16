@@ -9,10 +9,13 @@ import { PageHeader } from 'components/page-header'
 import {AiFillCheckCircle, AiOutlineLoading} from 'react-icons/ai'
 import {ImCross} from 'react-icons/im'
 
+import { useStores } from 'hooks/useStores'
+
 
 
 
 export const Control =  observer((props: any) =>{
+	const {uiStore}=useStores()
 	const [connection, setConnection] = useState<HubConnection|null>(null)
 	const [video, setVideo] = useState<any>(undefined)
 	
@@ -71,6 +74,7 @@ export const Control =  observer((props: any) =>{
 				<div className='flex-1'>
 					<GSection
 						title='Enterance Gate Control'
+						subtitle={`${enteranceGate.message}`}
 						actions={<div className={`bg-${enteranceGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{enteranceGate.status?'Gate Opened':' Gate Closed'}</div>}
 					>
 						{/* Face Section */}
@@ -79,16 +83,27 @@ export const Control =  observer((props: any) =>{
 							<GButton
 								size='sm'
 								label='Start Detection'
-								variant='contained'
+								variant='outlined'
 								color='primary'
 								onClick={()=>{startEnteranceDetection()}}
 							/>
 							<GButton
 								size='sm'
+								label='Car Entered'
+								variant='outlined'
+								color='success'
+								onClick={()=>{departureGate('1','enter')}}
+								loading={uiStore.apiCallStates.enteranceGate==='loading'}
+								disabled={enteranceGate.face.status==='idle'||uiStore.apiCallStates.enteranceGate==='loading'}
+							/>
+							<GButton
+								size='sm'
 								label='Car Left'
-								variant='contained'
+								variant='outlined'
 								color='danger'
 								onClick={()=>{departureGate('1','enter')}}
+								loading={uiStore.apiCallStates.enteranceGate==='loading'}
+								disabled={enteranceGate.face.status==='idle'|| uiStore.apiCallStates.enteranceGate==='loading'}
 							/>
 						</div>
 						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
@@ -166,6 +181,7 @@ export const Control =  observer((props: any) =>{
 				<div className='flex-1'>
 					<GSection
 						title='Exit Gate Control'
+						subtitle={`${exitGate.message}`}
 						actions={<div className={`bg-${exitGate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{exitGate.status?'Gate Opened':' Gate Closed'}</div>}
 					>
 						{/* Face Section */}
@@ -174,16 +190,27 @@ export const Control =  observer((props: any) =>{
 							<GButton
 								size='sm'
 								label='Start Detection'
-								variant='contained'
+								variant='outlined'
 								color='primary'
 								onClick={()=>{startExitDetection()}}
 							/>
 							<GButton
 								size='sm'
+								label='Car Entered'
+								variant='outlined'
+								color='success'
+								onClick={()=>{departureGate('2','exit')}}
+								loading={uiStore.apiCallStates.exitGate==='loading'}
+								disabled={exitGate.face.status==='idle'}
+							/>
+							<GButton
+								size='sm'
 								label='Car Left'
-								variant='contained'
+								variant='outlined'
 								color='danger'
-								onClick={()=>{departureGate('1','exit')}}
+								onClick={()=>{departureGate('2','exit')}}
+								loading={uiStore.apiCallStates.exitGate==='loading'}
+								disabled={exitGate.face.status==='idle'}
 							/>
 						</div>	
 						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
@@ -276,20 +303,37 @@ export const Control =  observer((props: any) =>{
 	}
 
 	async function departureGate(id: string,gate:'enter'|'exit') {
-		try {
-			await http.post(`Terminals/CarDeparture/${id}`)
-			if(gate === 'enter'){
-				setEnteranceGate((prevState:any)=>(
-					{...prevState,status:false	}
-				))
+		
+
+		if(gate === 'enter'){
+			try {
+				uiStore.setCallState('enteranceGate','loading')
+				await http.post(`Terminals/CarDeparture/${id}`)
+				setEnteranceGate(	{
+					face:{img:undefined,info:'',status:'idle'},
+					plate:{img:undefined,info:'',status:'idle'},
+					status:false,
+					message:'',
+				})
+				uiStore.setCallState('enteranceGate','idle')
+			} catch (error) {
+				uiStore.setCallState('enteranceGate','error')
 			}
-			if(gate === 'exit'){
-				setExitGate((prevState:any)=>(
-					{...prevState,status:false	}
-				))
+		}
+		if(gate === 'exit'){
+			try {
+				uiStore.setCallState('exitGate','loading')
+				await http.post(`Terminals/CarDeparture/${id}`)
+				setExitGate(	{
+					face:{img:undefined,info:'',status:'idle'},
+					plate:{img:undefined,info:'',status:'idle'},
+					status:false,
+					message:'',
+				})
+				uiStore.setCallState('exitGate','idle')
+			} catch (error) {
+				uiStore.setCallState('exitGate','error')
 			}
-		} catch (error) {
-			console.log(error)
 		}
 	}
 

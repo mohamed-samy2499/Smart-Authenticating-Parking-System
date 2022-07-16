@@ -12,18 +12,18 @@ const largeSizeClasses = { icon: ['h-6 w-6 ml-3'], button: ['py-2 px-6 text-base
 const xlargeSizeClasses = { icon: ['h-6 w-6 ml-4'], button: ['py-3 px-7 text-base'], loading: ['h-6 w-6'] }
 
 const outlinedClasses = (color: string) => {
-	return [`border-${color}-500 shadow-sm bg-transparent text-${color}-500 hover:bg-${color}-500 hover:text-white focus:ring-${color}-500 disabled:bg-transparent disabled:text-${color}-200 disabled:border-${color}-200 font-semibold`]
+	return [`border-${color}-500 shadow-sm bg-transparent text-${color}-500 hover:bg-${color}-500 hover:text-white focus:ring-${color}-500 disabled:bg-gray-300 disabled:text-gray-50 disabled:hover:bg-gray-300 disabled:border-gray-300 font-semibold`]
 }
 
 const containedClasses = (color: string) => {
 	if (color === 'gray') {
 		return [`border bg-white shadow-sm text-${color}-500 hover:bg-gray-50 focus:ring-${color}-500 disabled:bg-${color}-200 disabled:text-gray-400`]
 	}
-	return [`border-transparent shadow-sm bg-${color}-500 text-white hover:bg-${color}-600 focus:ring-${color}-500 disabled:bg-${color}-300 disabled:text-gray-50 disabled:hover:bg-${color}-300`]
+	return [`border-transparent shadow-sm bg-${color}-500 text-white hover:bg-${color}-600 focus:ring-${color}-500 disabled:bg-gray-300 disabled:text-gray-50 disabled:hover:bg-gray-300`]
 }
 
 const textClasses = (color: string) => {
-	return [`border-transparent shadow-sm bg-white text-${color}-500 hover:bg-gray-50 focus:ring-${color}-500 disabled:bg-transparent disabled:text-${color}-200`]
+	return [`border-transparent shadow-sm bg-white text-${color}-500 hover:bg-gray-50 focus:ring-${color}-500 disabled:bg-gray-300 disabled:text-gray-50 disabled:hover:bg-gray-300`]
 }
 
 export const GButton: FC<GbuttonProps> = (props) => {

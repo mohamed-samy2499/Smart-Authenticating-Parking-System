@@ -72,6 +72,9 @@ export class UiStore {
 
 		uploadCustomerVideo: 'idle',
 		getCustomerLogs: 'idle',
+
+		enteranceGate: 'idle',
+		exitGate: 'idle',
 	}
 
 	setCallState(key: string, state: 'idle' | 'loading' | 'success' | 'error', message?: string) {
