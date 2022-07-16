@@ -112,7 +112,7 @@ const RenderLogs = observer((props:any)=>{
 	const {getCustomerLogs,logs} = customersStore
 
 
-	{console.log(logs)}
+	{console.log('Hazem ',logs) }
 	useEffect(()=>{
 		(async ()=>{
 			await getCustomerLogs(id)
@@ -130,7 +130,7 @@ const RenderLogs = observer((props:any)=>{
 		const {row} = props
 		return (
 			<div>
-				{moment(row?.dateTimeTransaction).format('LL')||''}
+				{moment(row?.dateTimeTransaction).format('MMMM Do, YYYY - hh:mm:ss A')||''}
 			</div>)
 	}
 	const RenderGate = (props:any)=>{

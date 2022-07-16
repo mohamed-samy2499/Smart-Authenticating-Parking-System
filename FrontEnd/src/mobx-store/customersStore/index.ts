@@ -74,7 +74,7 @@ export default class CustomersStore {
 		try {
 			this.uiStore.setCallState('getCustomerLogs', 'loading')
 			const logs = await customerServices.getCustomerLog(id)
-			this.logs === logs
+			this.logs = logs
 			this.uiStore.setCallState('getCustomerLogs', 'success')
 		} catch (error: any) {
 			this.uiStore.setCallState('getCustomerLogs', 'error', 'failed to get logs')
