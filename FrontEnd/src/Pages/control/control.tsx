@@ -25,7 +25,6 @@ export const Control =  observer((props: any) =>{
 			plate:{img:undefined,info:'',status:'idle',id:''},
 			status:false,
 			message:'',
-			
 		}
 	)
 	const [exitGate,setExitGate] = useState<any>(
@@ -34,7 +33,6 @@ export const Control =  observer((props: any) =>{
 			plate:{img:undefined,info:'',status:'idle',id:''},
 			status:false,
 			message:'',
-			
 		}
 	)
 
@@ -97,7 +95,7 @@ export const Control =  observer((props: any) =>{
 								color='success'
 								onClick={()=>{departureGate('1','enter')}}
 								loading={uiStore.apiCallStates.enteranceGate==='loading'}
-								disabled={enteranceGate.face.status==='idle'||uiStore.apiCallStates.enteranceGate==='loading'}
+								disabled={!(enteranceGate.status===true)||uiStore.apiCallStates.enteranceGate==='loading'}
 							/>
 							<GButton
 								size='sm'
@@ -204,7 +202,7 @@ export const Control =  observer((props: any) =>{
 								color='success'
 								onClick={()=>{departureGate('2','exit')}}
 								loading={uiStore.apiCallStates.exitGate==='loading'}
-								disabled={exitGate.face.status==='idle'}
+								disabled={!(exitGate.status===true) || uiStore.apiCallStates.enteranceGate==='loading'}
 							/>
 							<GButton
 								size='sm'
@@ -213,7 +211,7 @@ export const Control =  observer((props: any) =>{
 								color='danger'
 								onClick={()=>{departureGate('2','exit')}}
 								loading={uiStore.apiCallStates.exitGate==='loading'}
-								disabled={exitGate.face.status==='idle'}
+								disabled={exitGate.face.status==='idle'|| uiStore.apiCallStates.exitGate==='loading'}
 							/>
 						</div>	
 						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
@@ -306,15 +304,13 @@ export const Control =  observer((props: any) =>{
 	}
 
 	async function departureGate(id: string,gate:'enter'|'exit') {
-		
-
 		if(gate === 'enter'){
 			try {
 				uiStore.setCallState('enteranceGate','loading')
 				await http.post(`Terminals/CarDeparture/${id}`,{plateId:enteranceGate.plate.id,faceId:enteranceGate.face.id})
-				setEnteranceGate(	{
-					face:{img:undefined,info:'',status:'idle'},
-					plate:{img:undefined,info:'',status:'idle'},
+				setEnteranceGate({
+					face:{img:undefined,info:'',status:'idle',id:''},
+					plate:{img:undefined,info:'',status:'idle',id:''},
 					status:false,
 					message:'',
 				})
@@ -327,9 +323,9 @@ export const Control =  observer((props: any) =>{
 			try {
 				uiStore.setCallState('exitGate','loading')
 				await http.post(`Terminals/CarDeparture/${id}`,{plateId:exitGate.plate.id,faceId:exitGate.face.id})
-				setExitGate(	{
-					face:{img:undefined,info:'',status:'idle'},
-					plate:{img:undefined,info:'',status:'idle'},
+				setExitGate(			{
+					face:{img:undefined,info:'',status:'idle',id:''},
+					plate:{img:undefined,info:'',status:'idle',id:''},
 					status:false,
 					message:'',
 				})
