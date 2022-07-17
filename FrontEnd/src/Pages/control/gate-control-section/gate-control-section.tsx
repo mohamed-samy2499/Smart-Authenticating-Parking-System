@@ -6,52 +6,64 @@ import {ImCross} from 'react-icons/im'
 import http from '../../../Services/httpService'
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 
-
 export const GateControlSection = observer((props:any)=>{
 	const {uiStore}=useStores()
-	const {gate,setGate,key,title} = props
+	const {gate,setGate,id,title} = props
+
 	return(
 		<GSection
 			title={title}
-			subtitle={`${gate.message}`}
-			actions={<div className={`bg-${gate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{gate.status?'Gate Opened':' Gate Closed'}</div>}
+			subtitle={<div className='flex flex-col'>
+				<div>{gate.message}</div>
+			</div>}
+			
+			actions={	<div className='flex flex-col justify-center items-center'>
+				<div className='text-xs text-gray-400 '>Gate Status</div>
+				<div><div className={`bg-${gate.status?'success':'danger'}-500 text-white text-sm text-center rounded-lg py-1 px-3 w-28`}>{gate.status?'Opened':'Closed'}</div></div>
+			</div>
+			}
 		>
+		
 			{/* Face Section */}
-			<div className='flex gap-2'>
-						
-				<GButton
-					size='sm'
-					label='Start Detection'
-					variant='outlined'
-					color='primary'
-					onClick={()=>{startDetection()}}
-				/>
-				<GButton
-					size='sm'
-					label='Car Passed'
-					variant='outlined'
-					color='success'
-					onClick={()=>{passedGate(key==='exitGate'?'2':'1')}}
-					loading={uiStore.apiCallStates.gate==='loading'}
-					disabled={!(gate.status===true) || uiStore.apiCallStates[key]==='loading'}
-				/>
-				<GButton
-					size='sm'
-					label='Car Left'
-					variant='outlined'
-					color='danger'
-					onClick={()=>{departureGate(key==='exitGate'?'2':'1')}}
-					loading={uiStore.apiCallStates.gate==='loading'}
-					disabled={gate.face.status==='idle'|| uiStore.apiCallStates[key]==='loading'}
-				/>
-				<GButton
-					size='sm'
-					label={gate.status?'Close Gate':'Open Gate'}
-					variant='outlined'
-					color={gate.status?'danger':'success'}
-					onClick={()=>{manualGateControl(key==='exitGate'?'2':'1')}}
-					loading={uiStore.apiCallStates[key]==='loading'}
-				/>
+			<div className='flex justify-between'>
+				<div className='flex gap-2'>	
+					<GButton
+						size='sm'
+						label='Start Detection'
+						variant='outlined'
+						color='primary'
+						onClick={()=>{startDetection()}}
+					/>
+					<GButton
+						size='sm'
+						label='Car Passed'
+						variant='outlined'
+						color='success'
+						onClick={()=>{passedGate(id==='exitGate'?'2':'1')}}
+						loading={uiStore.apiCallStates.gate==='loading'}
+						disabled={!(gate.status===true) || uiStore.apiCallStates[id]==='loading'}
+					/>
+					<GButton
+						size='sm'
+						label='Car Left'
+						variant='outlined'
+						color='danger'
+						onClick={()=>{departureGate(id==='exitGate'?'2':'1')}}
+						loading={uiStore.apiCallStates.gate==='loading'}
+						disabled={gate.face.status==='idle'|| uiStore.apiCallStates[id]==='loading'}
+					/>
+				</div>
+				<div>
+					<GButton
+						size='sm'
+						label={gate.status?'Close Manually':'Open Manually'}
+						variant='outlined'
+						color={gate.status?'danger':'success'}
+						onClick={()=>{manualGateControl(id ==='exitGate'?'2':'1')}}
+						loading={uiStore.apiCallStates[id]==='loading'}
+						disabled={uiStore.apiCallStates[id]==='loading'}
+					/>
+				</div>
 			</div>	
 			<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
 				<h1 className=' font-bold text-2xl mb-6 bg-white inline-flex p-2 rounded-md text-primary-400'>Face module </h1>
@@ -117,28 +129,26 @@ export const GateControlSection = observer((props:any)=>{
 					</div>
 				)}
 			</div>		
+			
 		</GSection>
 	)
 
 
 	async function manualGateControl(id: string) {
 		try {
-			uiStore.setCallState(key,'loading')
-			await  http.post(`TerminalsController/manualGateControl/${id}`,{plateId:gate.plate.id,faceId:gate.face.id})
-			setGate({
-				face:{img:undefined,info:'',status:'idle',id:''},
-				plate:{img:undefined,info:'',status:'idle',id:''},
-				status:false,
-				message:'',
-			})
-			uiStore.setCallState(key,'idle')
+			uiStore.setCallState(id,'loading')
+			const response = await http.post(`Terminals/manualGateControl/${id}`)
+			// console.log('response.data',response.data)
+			console.log('response.gagte',gate)
+			setGate({...gate,status:response.data.gateState==='False'?false:true})
+			uiStore.setCallState(id,'idle')
 		} catch (error) {
-			uiStore.setCallState(key,'error')
+			uiStore.setCallState(id,'error')
 		}
 	}
 	async function passedGate(id: string) {
 		try {
-			uiStore.setCallState(key,'loading')
+			uiStore.setCallState(id,'loading')
 			await  http.post(`Terminals/CarEntered/${id}`,{plateId:gate.plate.id,faceId:gate.face.id})
 			setGate({
 				face:{img:undefined,info:'',status:'idle',id:''},
@@ -146,15 +156,15 @@ export const GateControlSection = observer((props:any)=>{
 				status:false,
 				message:'',
 			})
-			uiStore.setCallState(key,'idle')
+			uiStore.setCallState(id,'idle')
 		} catch (error) {
-			uiStore.setCallState(key,'error')
+			uiStore.setCallState(id,'error')
 		}
 	}
 
 	async function departureGate(id: string) {
 		try {
-			uiStore.setCallState(key,'loading')
+			uiStore.setCallState(id,'loading')
 			await http.post(`Terminals/CarDeparture/${id}`,{plateId:gate.plate.id,faceId:gate.face.id})
 			setGate({
 				face:{img:undefined,info:'',status:'idle',id:''},
@@ -162,23 +172,26 @@ export const GateControlSection = observer((props:any)=>{
 				status:false,
 				message:'',
 			})
-			uiStore.setCallState(key,'idle')
+			uiStore.setCallState(id,'idle')
 		} catch (error) {
-			uiStore.setCallState(key,'error')
+			uiStore.setCallState(id,'error')
 		}
 	}
 	async function startDetection() {
-		const id =key==='exitGate'?'2':'1'
+		const ids = id ==='exitGate'?'2':'1'
+		const url = id ==='exitGate'?'CarExit':'CarEntry'
+		console.log('exitGate',ids)
 		try {
 			await gateSocket()
-			await http.post(`Terminals/CarEntry/${id}`)
+			await http.post(`Terminals/${url}/${ids}`)
 		} catch (error) {
 			console.log(error)
 		}
 	}
 
 	async function gateSocket(){
-		const functionName = key==='exitGate'?'exitGateDetection':'enteranceGateDetection'
+		const functionName = id==='exitGate'?'exitGateDetection':'enteranceGateDetection'
+		console.log('functionName',functionName)
 		try{
 			const connectionq = new HubConnectionBuilder()
 				.withUrl(`${process.env.REACT_APP_SERVER_URL}message`)
