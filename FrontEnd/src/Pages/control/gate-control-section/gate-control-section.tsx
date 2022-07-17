@@ -4,8 +4,8 @@ import { observer } from 'mobx-react'
 import {AiFillCheckCircle, AiOutlineLoading} from 'react-icons/ai'
 import {ImCross} from 'react-icons/im'
 import http from '../../../Services/httpService'
-import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
-import { useState } from 'react'
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
+
 
 export const GateControlSection = observer((props:any)=>{
 	const {uiStore}=useStores()
@@ -49,7 +49,7 @@ export const GateControlSection = observer((props:any)=>{
 					label={gate.status?'Close Gate':'Open Gate'}
 					variant='outlined'
 					color={gate.status?'danger':'success'}
-					onClick={()=>{departureGate(key==='exitGate'?'2':'1')}}
+					onClick={()=>{manualGateControl(key==='exitGate'?'2':'1')}}
 					loading={uiStore.apiCallStates[key]==='loading'}
 				/>
 			</div>	
@@ -121,6 +121,21 @@ export const GateControlSection = observer((props:any)=>{
 	)
 
 
+	async function manualGateControl(id: string) {
+		try {
+			uiStore.setCallState(key,'loading')
+			await  http.post(`TerminalsController/manualGateControl/${id}`,{plateId:gate.plate.id,faceId:gate.face.id})
+			setGate({
+				face:{img:undefined,info:'',status:'idle',id:''},
+				plate:{img:undefined,info:'',status:'idle',id:''},
+				status:false,
+				message:'',
+			})
+			uiStore.setCallState(key,'idle')
+		} catch (error) {
+			uiStore.setCallState(key,'error')
+		}
+	}
 	async function passedGate(id: string) {
 		try {
 			uiStore.setCallState(key,'loading')
