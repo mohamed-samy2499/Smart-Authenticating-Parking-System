@@ -34,10 +34,11 @@ export const CarsPage = observer(() => {
 		return(
 			<>
 				<GDialog
+					title='Add Car'
 					open={open}
 					onClose={()=>setOpen(false)}
 				>
-					<CreateEditCar />
+					<CreateEditCar close={()=>setOpen(false)} />
 				</GDialog>
 				<GButton 
 					label='Add Car'

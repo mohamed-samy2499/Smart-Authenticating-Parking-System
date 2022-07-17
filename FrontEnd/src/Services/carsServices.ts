@@ -18,8 +18,8 @@ async function createCar(data: any) {
 	return response.data
 }
 
-async function updateCar(data: any, id: any) {
-	const response = await http.put(`items/updateItembyID/${id}`, data)
+async function updateCar(id: any, data: any,) {
+	const response = await http.put(`Vehicles/${id}/update-admin/`, data)
 
 	return response.data
 }

@@ -38,10 +38,11 @@ const RenderActions = (props:any)=>{
 	return (
 		<>
 			<GDialog 
+				title='Edit Car'
 				open={open}
 				onClose={()=>setOpen(false)}
 			>
-				<CreateEditCar data	={row} />
+				<CreateEditCar data	={row} close={()=>setOpen(false)} />
 			</GDialog>
 			<GButton 
 				label='Edit'

@@ -33,10 +33,11 @@ export default class CarsStore {
 		}
 	]
 
-	createCar = async (data: carsData) => {
+	createCar = async (data: carsData, close: any) => {
 		try {
 			await carsServices.createCar(data)
-			history.push('/admin/cars')
+			close()
+			this.getAllCars()
 		} catch (error) {
 			console.log(error)
 		}
@@ -54,16 +55,16 @@ export default class CarsStore {
 		}
 	}
 
-	updateCars = async (data: any, id: any) => {
+	updateCar = async (id: any, data: any, close: any) => {
 		try {
-			this.getCarsState = ApiCallStates.LOADING
-			const cars = await carsServices.updateCar(id, data)
-			this.cars = cars
-			this.getCarsState = ApiCallStates.SUCCEEDED
-			history.push('/admin/cars')
+			this.uiStore.setCallState('mutateCars', 'loading')
+			await carsServices.updateCar(id, data)
+			close()
+			this.getAllCars()
+			this.uiStore.setCallState('mutateCars', 'success', 'car added successfully')
 		} catch (error) {
 			console.log(error)
-			this.getCarsState = ApiCallStates.FAILED
+			this.uiStore.setCallState('mutateCars', 'error', 'Failded to update car')
 		}
 	}
 	// deleteCars = async (id: any) => {

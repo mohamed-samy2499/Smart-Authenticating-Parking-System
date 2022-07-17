@@ -18,44 +18,42 @@ interface GDateSelectorProps extends CalendarProps {
 	buttonLabel?: string
 }
 
-export const DateSelector = (props: GDateSelectorProps) => {
+export const GDateSelector = (props: GDateSelectorProps) => {
 	const { onChange, label, buttonLabel, align = 'left', variant, color, className, ...rest } = props
 	const [date, setDate] = useState(new Date())
 	const buttonTitle = date ? date.toLocaleDateString() : (buttonLabel || 'Select Date')
 
 	return (
-		<>
-			<div className='flex relative'>
-				<div>
+		<>				<div>
 
-					{label && <div className="block text-sm font-medium text-gray-700 mb-1">{label}</div>}
-					<Popover className="flex relative w-full flex-col z-10">
-						{({ open }) => (
-							<>
-								<Popover.Button as='div'>
-									<GButton
-										variant={variant || 'contained'}
-										color={color || 'neutral'}
-										label={buttonTitle}
-										icon={RiArrowDownSLine}
-										className={className}
-									/>
-								</Popover.Button>
-								<GTransition show={open}>
-									<Popover.Panel className={`absolute top-1  ${align === 'left' ? 'left-0' : 'right-0'}`}>
-										<Calendar
-											date={date}
-											onChange={item => handleDateChange(item)}
-											{...rest}
-										/>
-									</Popover.Panel>
-								</GTransition>
-							</>
-						)}
-					</Popover>
-				</div>
-				<div className='flex-1'></div>
-			</div>
+			{label && <div className="block text-sm font-medium text-gray-700 mb-1">{label}</div>}
+			<Popover className="flex relative w-full flex-col z-10">
+				{({ open }) => (
+					<>
+						<Popover.Button as='div'>
+							<GButton
+								variant={variant || 'contained'}
+								color={color || 'neutral'}
+								label={buttonTitle}
+								icon={RiArrowDownSLine}
+								className={className}
+							/>
+						</Popover.Button>
+						<GTransition show={open}>
+							<Popover.Panel className={`absolute top-1  ${align === 'left' ? 'left-0' : 'right-0'}`}>
+								<Calendar
+									date={date}
+									onChange={item => handleDateChange(item)}
+									{...rest}
+								/>
+							</Popover.Panel>
+						</GTransition>
+					</>
+				)}
+			</Popover>
+		</div>
+		<div className='flex-1'></div>
+	
 		</>
 	)
 	function handleDateChange(item: any) {
