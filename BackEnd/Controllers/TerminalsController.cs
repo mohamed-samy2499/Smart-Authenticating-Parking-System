@@ -921,7 +921,7 @@ namespace Parking_System_API.Controllers
                                    message = $"Entrance transaction completed successfully",
                                    imagePath = ""
                                });
-                    return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                    return Ok(new { Success = "Gate is closed", GateStatus = $"{ gate.State}" });
                 }
                 if (gateId == 2)
                 {
@@ -1001,7 +1001,7 @@ namespace Parking_System_API.Controllers
                 //               message = $"Gate is being closed the transaction failed",
                 //               imagePath = ""
                 //           });
-                return Ok(new { Success = "transaction failed Gate is closed", GateStatus = "${ gate.State}" });
+                return Ok(new { Success = "transaction failed Gate is closed", GateStatus = $"{ gate.State}" });
             }
             catch (Exception ex)
             {
