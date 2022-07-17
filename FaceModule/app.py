@@ -136,7 +136,7 @@ def home():
                         predictions = model.predict_proba(emb_array)
                         best_class_indices = np.argmax(predictions, axis=1)
                         best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
-                        if best_class_probabilities>0.95:
+                        if best_class_probabilities>0.97:
                             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)    #boxing face
                             for H_i in HumanNames:
                                 if HumanNames[best_class_indices[0]] == H_i:
@@ -168,12 +168,17 @@ def home():
                             #                 tmp = content
                             #                 with open(person_txt_path, "w") as k:
                             #                     k.write(person_name)
+                            cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                            with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                                img = base64.b64encode(file.read()).decode('utf-8')
+                                return jsonify({"Id":"unknown" , "face":img})
                             counter+=1
                             if counter == 15:
                                 cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
                                 with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
                                     img = base64.b64encode(file.read()).decode('utf-8')
                                     return jsonify({"Id":"unknown" , "face":img})
+                                    
                             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
                             cv2.rectangle(frame, (xmin, ymin-20), (xmax, ymin-2), (0, 255,255), -1)
                             cv2.putText(frame, "?", (xmin,ymin-5), cv2.FONT_HERSHEY_COMPLEX_SMALL,
@@ -182,8 +187,8 @@ def home():
                         # counter+=1
                         # print("error")
                         # if counter == 15:
-                        ret, frame = video_capture.read()
-                        cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                        
+                        # cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
                         with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
                             img = base64.b64encode(file.read()).decode('utf-8')
                             return jsonify({"Id":"unknown" , "face":img})
