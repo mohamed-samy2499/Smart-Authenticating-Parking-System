@@ -6,13 +6,13 @@ namespace Parking_System_API.Data.Entities
 {
     public class Terminal
     {
-        [Required, Key]
-        public int Id { get; set; }
-        public string ConnectionString { get; set; } //Wired or Network
-        [Required]
-        public bool Service { get; set; } //Online 1 or Offline 0
-        [Required]
-        public bool Direction { get; set; }   //Entry 1 or Exit 0
+        //[Required, Key]
+        //public int Id { get; set; }
+        //public string ConnectionString { get; set; } //Wired or Network
+        //[Required]
+        //public bool Service { get; set; } //Online 1 or Offline 0
+        //[Required]
+        //public bool Direction { get; set; }   //Entry 1 or Exit 0
         //[ForeignKey("FK_Terminal_Terminal")]
         //public int FRCameraId { get; set; }
         //[ForeignKey("FK_Gate_Terminal")]

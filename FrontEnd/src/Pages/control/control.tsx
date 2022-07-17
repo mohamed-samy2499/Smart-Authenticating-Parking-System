@@ -34,8 +34,7 @@ export const Control =  observer((props: any) =>{
 
 	const options = [
 		{label:'LP7',url:'./data/LP7_trimmed.mp4'},
-		{label:'LP8',url:'./data/LP8_trimmed.mp4'},
-		{label:'LP9',url:'./data/LP9_trimmed.mp4'},
+		{label:'LP8',url:'./data/LP8_trimmed.mp4'}
 	]
 
 	const handleSelectChange = async (e:any)=>{

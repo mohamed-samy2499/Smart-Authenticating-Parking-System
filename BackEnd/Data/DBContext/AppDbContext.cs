@@ -15,13 +15,13 @@ namespace Parking_System_API.Data.DBContext
         public DbSet<SystemUser> SystemUsers { get; set; }
         public DbSet<Participant> Participants { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
-        public DbSet<Camera> Hardwares { get; set; }
+        //public DbSet<Camera> Hardwares { get; set; }
         public DbSet<ParkingTransaction> ParkingTransactions { get; set; }
         public DbSet<Constant> Constants { get; set; }
         public DbSet<Role> Roles { get; set; }
         
-        public DbSet<Camera> Cameras { get; set; }
-        public DbSet<Terminal> Terminals { get; set; }
+        //public DbSet<Camera> Cameras { get; set; }
+        //public DbSet<Terminal> Terminals { get; set; }
         public DbSet<Tariff> Tariffs   { get; set; }
         public DbSet<Gate> Gates { get; set; }
 
@@ -57,7 +57,7 @@ namespace Parking_System_API.Data.DBContext
             mb.Entity<SystemUser>().Property(p => p.IsPowerAccount).HasDefaultValue(false);
 
             mb.Entity<Vehicle>().HasKey(p => new { p.PlateNumberId });
-            mb.Entity<Terminal>().HasKey(p => new { p.Id });
+            //mb.Entity<Terminal>().HasKey(p => new { p.Id });
             mb.Entity<ParkingTransaction>().HasKey(p => new { p.ParticipantId , p.PlateNumberId, p.DateTimeTransaction});
             var salt = HashingClass.GenerateSalt();
             mb.Entity<SystemUser>().HasData(
@@ -71,35 +71,35 @@ namespace Parking_System_API.Data.DBContext
                 }
                 );
 
-            mb.Entity<Terminal>().HasData(
-                new Terminal
-                {
-                    Id = 1,
-                    Service = true,
-                    Direction = true
-                },
-                new Terminal
-                {
-                    Id = 2,
-                    Service = true,
-                    Direction = true
-                }
+            //mb.Entity<Terminal>().HasData(
+            //    new Terminal
+            //    {
+            //        Id = 1,
+            //        Service = true,
+            //        Direction = true
+            //    },
+            //    new Terminal
+            //    {
+            //        Id = 2,
+            //        Service = true,
+            //        Direction = true
+            //    }
                 
-                );
+                //);
             mb.Entity<Gate>().HasData(
                 new Gate
                 {
                     Id = 1,
                     Service = true,
                     State = false,
-                    TerminalId = 1
+                    //TerminalId = 1
                 },
                 new Gate
                 {
                     Id = 2,
                     Service = true,
                     State = false,
-                    TerminalId = 2
+                    //TerminalId = 2
                 }
                 ) ;
             
@@ -109,12 +109,12 @@ namespace Parking_System_API.Data.DBContext
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.HasIndex(e => e.NationalId).IsUnique();
             });
-            mb.Entity<Camera>(entity => {
-                entity.HasIndex(e => e.ConnectionString).IsUnique();
-            });
-            mb.Entity<Terminal>(entity => {
-                entity.HasIndex(e => e.ConnectionString).IsUnique();
-            });
+            //mb.Entity<Camera>(entity => {
+            //    entity.HasIndex(e => e.ConnectionString).IsUnique();
+            //});
+            //mb.Entity<Terminal>(entity => {
+            //    entity.HasIndex(e => e.ConnectionString).IsUnique();
+            //});
             mb.Entity<Constant>().HasData(new Constant
             {
                 ID = 1,
@@ -123,8 +123,8 @@ namespace Parking_System_API.Data.DBContext
 
             });
             mb.Entity<Vehicle>().Property(c => c.PlateNumberId).ValueGeneratedNever();
-            mb.Entity<Terminal>().Property(c => c.Id).ValueGeneratedOnAdd();
-            mb.Entity<Camera>().Property(c => c.Id).ValueGeneratedOnAdd();
+            //mb.Entity<Terminal>().Property(c => c.Id).ValueGeneratedOnAdd();
+            //mb.Entity<Camera>().Property(c => c.Id).ValueGeneratedOnAdd();
             mb.Entity<Gate>().Property(c => c.Id).ValueGeneratedOnAdd();
         }
 

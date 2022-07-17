@@ -16,6 +16,7 @@ import tensorflow.compat.v1 as tf
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import base64
 
 # model_flag = 1
 # CameraUser = ""
@@ -76,7 +77,7 @@ def home():
     # with open(plate_txt_path,"r") as b:
     #     print(b.read())
     person_name = ""
-    conuter =0
+    counter = 0
     tmp = "-100"
     while True:
         # print(minsize)
@@ -140,8 +141,10 @@ def home():
                                     # only send if got request
                                     # content = r.text['NP']
                                     person_name = HumanNames[best_class_indices[0]]
-                                    cv2.imwrite("detected_face.jpeg", frame)
-                                    return jsonify({"Id":person_name,"face":'{}/detected_face.jpeg'.format(os.getcwd())})
+                                    cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                                    with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                                        img = base64.b64encode(file.read()).decode('utf-8')
+                                        return jsonify({"Id":person_name,"face": img})
                                     print("Predictions : [ name: {} , accuracy: {:.3f} ]".format(HumanNames[best_class_indices[0]],best_class_probabilities[0]))
                                     cv2.rectangle(frame, (xmin, ymin-20), (xmax, ymin-2), (0, 255,255), -1)
                                     cv2.putText(frame, '{}'.format(result_names), (xmin,ymin-5), cv2.FONT_HERSHEY_COMPLEX_SMALL,
@@ -164,18 +167,31 @@ def home():
                             #                     k.write(person_name)
                             counter+=1
                             if counter == 15:
-                                cv2.imwrite("detected_face.jpeg", frame)
-                                return jsonify({"Id":"unknown" , "face":'{}/detected_face.jpeg'.format(os.getcwd())})
+                                cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                                with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                                    img = base64.b64encode(file.read()).decode('utf-8')
+                                    return jsonify({"Id":"unknown" , "face":img})
                             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
                             cv2.rectangle(frame, (xmin, ymin-20), (xmax, ymin-2), (0, 255,255), -1)
                             cv2.putText(frame, "?", (xmin,ymin-5), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                                 1, (0, 0, 0), thickness=1, lineType=1)
                     except:   
-                        counter+=1
-                        print("error")
-                        if counter == 15:
-                            cv2.imwrite("detected_face.jpeg", frame)
-                            return jsonify({"Id":"unknown" , "face":'{}/detected_face.jpeg'.format(os.getcwd())})
+                        # counter+=1
+                        # print("error")
+                        # if counter == 15:
+                        ret, frame = video_capture.read()
+                        cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                        with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                            img = base64.b64encode(file.read()).decode('utf-8')
+                            return jsonify({"Id":"unknown" , "face":img})
+                    # except UnboundLocalError:
+                    #     counter+=1
+                    #     print("error")
+                    #     if counter == 15:
+                    #         cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                    #         with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                    #             img = base64.b64encode(file.read()).decode('utf-8')
+                    #             return jsonify({"Id":"unknown" , "face":img})
                         
             endtimer = time.time()
             fps = 1/(endtimer-timer)

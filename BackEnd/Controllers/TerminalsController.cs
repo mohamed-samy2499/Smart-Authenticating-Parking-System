@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Parking_System_API.Data.DBContext;
 using Parking_System_API.Data.Entities;
-using Parking_System_API.Data.Repositories.CameraR;
+//using Parking_System_API.Data.Repositories.CameraR;
 using Parking_System_API.Data.Repositories.GateR;
-using Parking_System_API.Data.Repositories.HardwareR;
+//using Parking_System_API.Data.Repositories.HardwareR;
 using Parking_System_API.Data.Repositories.ParkingTransactionR;
 using Parking_System_API.Data.Repositories.ParticipantR;
 using Parking_System_API.Data.Repositories.VehicleR;
@@ -36,18 +36,21 @@ namespace Parking_System_API.Controllers
         protected readonly IHubContext<MessageHub> _messageHub;
         private readonly AppDbContext context;
         private readonly IGateRepository gateRepository;
-        private readonly ICameraRepository cameraRepository;
-        private readonly ITerminalRepository terminalRepository;
+        //private readonly ICameraRepository cameraRepository;
+        //private readonly ITerminalRepository terminalRepository;
         private readonly IParticipantRepository participantRepository;
         private readonly IVehicleRepository vehicleRepository;
         private readonly IParkingTransactionRepository parkingTransactionRepository;
         private readonly IWebHostEnvironment webHostEnvironment;
         private static readonly HttpClient client1 = new HttpClient();
-        public TerminalsController(IWebHostEnvironment webHostEnvironment, IHubContext<MessageHub> messageHub, IGateRepository gateRepository, ICameraRepository cameraRepository, ITerminalRepository terminalRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
+        public static string globalImgPlateName { get; set; } = "";
+        public static string globalImgFaceName { get; set; } = "";
+
+        public TerminalsController(IWebHostEnvironment webHostEnvironment, IHubContext<MessageHub> messageHub, IGateRepository gateRepository, IParticipantRepository participantRepository, IVehicleRepository vehicleRepository, IParkingTransactionRepository parkingTransactionRepository)
         {
             this.gateRepository = gateRepository;
-            this.cameraRepository = cameraRepository;
-            this.terminalRepository = terminalRepository;
+            //this.cameraRepository = cameraRepository;
+            //this.terminalRepository = terminalRepository;
             this.participantRepository = participantRepository;
             this.vehicleRepository = vehicleRepository;
             this.parkingTransactionRepository = parkingTransactionRepository;
@@ -65,7 +68,7 @@ namespace Parking_System_API.Controllers
                 //Car Press Presence Sensor
 
 
-                var gate = await gateRepository.GetGateById(GateId, true);
+                var gate = await gateRepository.GetGateById(GateId);
 
                 if (gate == null)
                 {
@@ -93,15 +96,15 @@ namespace Parking_System_API.Controllers
                     }
 
                     }
-                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                    new SocketMessage()
-                    {
-                        model = "gate",
-                        status = "closed",
-                        terminate = false,
-                        message = $"Gate is closed",
-                        imagePath = ""
-                    });
+                //await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                //    new SocketMessage()
+                //    {
+                //        model = "gate",
+                //        status = "closed",
+                //        terminate = false,
+                //        message = $"Gate is closed",
+                //        imagePath = ""
+                //    });
                 //gate is closed
                 //calling APNR model
                 string PlateNum = "";
@@ -141,16 +144,21 @@ namespace Parking_System_API.Controllers
                 
                 var ParticipantId = ParticipantInfo[1];
 
-                var face_path = ParticipantInfo[0];
-                Image face_image = Image.FromFile(face_path);
-                var i3 = new Bitmap(face_image);
-                //send i2 to the frontend on sockets
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "face.jpeg");
-                i3.Save(filePath, ImageFormat.Jpeg);
+                //var face_path = ParticipantInfo[0];
+                //Image face_image = Image.FromFile(face_path);
+                //var i3 = new Bitmap(face_image);
+                ////send i2 to the frontend on sockets
+                //var imgName = $"face_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpeg";
+                //globalImgFaceName = imgName;
+                //var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", imgName);
+                //i3.Save(filePath, ImageFormat.Jpeg);
                 if (ParticipantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+                   new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
                     return Ok(new { message = "face recognition failed" });
 
                 }
@@ -166,6 +174,8 @@ namespace Parking_System_API.Controllers
                            message = $"ParticipantId is unknown",
                            imagePath = ""
                        });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
                     return Ok(new { Error = "ParticipantId is unknown" });
                 }
 
@@ -179,11 +189,13 @@ namespace Parking_System_API.Controllers
                            message = $"ParticipantId is null",
                            imagePath = ""
                        });
+                 
                     return Ok(new { Error = "ParticipantId is null" });
-            }else
+            }
+                else
                 {
-                    var filePath_face = "https://localhost:44380/face_verify/face.jpeg";
-                    var filePath_plate = "https://localhost:44380/face_verify/plate.jpeg";
+                    var filePath_face = $"https://localhost:44380/face_verify//{globalImgFaceName}";
+                    var filePath_plate = $"https://localhost:44380/face_verify//{globalImgPlateName}";
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                     new SocketMessage()
                     {
@@ -322,7 +334,17 @@ namespace Parking_System_API.Controllers
             byte[] response = client.DownloadData(Url);
             string res = System.Text.Encoding.ASCII.GetString(response);
             JObject json = JObject.Parse(res);
-            var face_path = json["face"].ToString();
+            byte[] bytes = Convert.FromBase64String(json["face"].ToString());
+
+            MemoryStream ms = new MemoryStream(bytes);
+            Image ret = Image.FromStream(ms);
+            var i2 = new Bitmap(ret);
+            //send i2 to the frontend on sockets
+            var imgName = $"face_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpeg";
+            globalImgFaceName = imgName;
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", imgName);
+            i2.Save(filePath, ImageFormat.Jpeg);
+            var face_path = "";
             var id = json["Id"].ToString();
             var list =new List<string>(); 
             list.Add(face_path);
@@ -362,7 +384,9 @@ namespace Parking_System_API.Controllers
                 Image ret = Image.FromStream(ms);
                 var i2 = new Bitmap(ret);
                 //send i2 to the frontend on sockets
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "plate.jpeg");
+                var imgName = $"plate_{DateTime.Now.ToString("yyyyMMddHHmmssffff")}.jpeg";
+                globalImgPlateName = imgName;
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", imgName);
                 i2.Save(filePath, ImageFormat.Jpeg);
                 return json["Id"].ToString();
             }
@@ -379,7 +403,7 @@ namespace Parking_System_API.Controllers
             {
                 //Car Press Presence Sensor
 
-                var gate = await gateRepository.GetGateById(GateId, true);
+                var gate = await gateRepository.GetGateById(GateId);
                 if (gate == null)
                     return NotFound(new { Error = $"Gate with Id {GateId} is not found." });
                 if (!gate.Service)
@@ -488,12 +512,12 @@ namespace Parking_System_API.Controllers
 
                 var ParticipantId = ParticipantInfo[1];
 
-                var face_path = ParticipantInfo[0];
-                Image face_image = Image.FromFile(face_path);
-                var i3 = new Bitmap(face_image);
+                //var face_path = ParticipantInfo[0];
+                //Image face_image = Image.FromFile(face_path);
+                //var i3 = new Bitmap(face_image);
                 //send i2 to the frontend on sockets
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "face.jpeg");
-                i3.Save(filePath, ImageFormat.Jpeg);
+                //var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\face_verify", "face.jpeg");
+                //i3.Save(filePath, ImageFormat.Jpeg);
                 if (ParticipantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
@@ -549,8 +573,8 @@ namespace Parking_System_API.Controllers
                 }
                 else
                 {
-                    var filePath_face = "https://localhost:44380/face_verify/face.jpeg";
-                    var filePath_plate = "https://localhost:44380/face_verify/plate.jpeg";
+                    var filePath_face = $"https://localhost:44380/face_verify/{globalImgFaceName}";
+                    var filePath_plate = $"https://localhost:44380/face_verify/{globalImgPlateName}";
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
                     new SocketMessage()
                     {
@@ -815,6 +839,56 @@ namespace Parking_System_API.Controllers
                                imagePath = ""
                            });
                 return Ok(new { Success = "transaction failed Gate is closed", GateStatus = "${ gate.State}" });
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
+            }
+        }
+
+        [HttpPost("manualGateControl/{GateId:int}")]
+        public async Task<IActionResult> GateControl(int GateId)
+        {
+            try
+            {
+                var gate = await gateRepository.GetGateById(GateId);
+                if (gate == null)
+                    return NotFound(new { Error = $"Gate with id {GateId} doesn't exit" });
+                gate.State = !gate.State ;
+                if (!await gateRepository.SaveChangesAsync())
+                {
+                    return Ok(new { Error = "Gate Not Closed" });
+                }
+                await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                           new SocketMessage()
+                           {
+                               model = "gate",
+                               status = (gate.State)? "open": "closed",
+                               terminate = false,
+                               message = "",
+                               imagePath = ""
+                           });
+                return Ok(new { GateStatus = "${gate.State}" });
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
+            }
+        }
+        [HttpGet("gatesState")]
+        public async Task<IActionResult> GateState()
+        {
+            try
+            {
+                var entranceGate = await gateRepository.GetGateById(1);
+                var exitGate = await gateRepository.GetGateById(2);
+
+                if (entranceGate == null)
+                    return NotFound(new { Error = $"Gate with id {1} doesn't exit" });
+                if (exitGate == null)
+                    return NotFound(new { Error = $"Gate with id {2} doesn't exit" });
+
+                return Ok(new { entranceGateStatus = "${entranceGate.State}" , exitGateStatus = "${exitGate.State}" });
             }
             catch (Exception ex)
             {
