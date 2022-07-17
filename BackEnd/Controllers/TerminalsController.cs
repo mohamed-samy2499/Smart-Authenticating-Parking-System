@@ -143,11 +143,15 @@ namespace Parking_System_API.Controllers
                         ,
                            imagePath = ""
                        });
+                        await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     }
                     else 
                     {
                             await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                       new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
+                        await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
 
                     }
 
@@ -169,6 +173,8 @@ namespace Parking_System_API.Controllers
                   new SocketMessage() { model = "face", status = "success", terminate = true, message = $"face has been recognized with ID :{ParticipantInfo[1]}", imagePath = "" });
 
                     }
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
 
                     return Ok(new { message = "face recognition or plate recognition failed" });
                 }
@@ -195,7 +201,8 @@ namespace Parking_System_API.Controllers
 
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                   new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
-
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     return Ok(new { message = "face recognition failed" });
 
                 }
@@ -223,7 +230,8 @@ namespace Parking_System_API.Controllers
                  });
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                   new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
-
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     return Ok(new { Error = "ParticipantId is unknown" });
                 }
 
@@ -249,7 +257,8 @@ namespace Parking_System_API.Controllers
                    });
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                   new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
-
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     return Ok(new { Error = "ParticipantId is null" });
             }
                 else
@@ -324,6 +333,8 @@ namespace Parking_System_API.Controllers
                            message = $"Person with Id {ParticipantId} is not found.",
                            imagePath = ""
                        });
+                        await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                         return Ok(new { Error = $"Person with Id {ParticipantId} is not found." });
                     }
 
@@ -363,6 +374,8 @@ namespace Parking_System_API.Controllers
                                 message = $"Subscription is not valid.",
                                 imagePath = ""
                             });
+                            await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                             return NotFound(new { Error = "Subscription is not valid." });
                         }
 
@@ -376,11 +389,15 @@ namespace Parking_System_API.Controllers
                         message = $"This participant doesn't own the vehicle",
                         imagePath = ""
                     });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     return NotFound(new { Error = $"Participant with {ParticipantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
                 }
             }
             catch (Exception ex)
             {
+                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                 return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
             }
 
@@ -580,6 +597,8 @@ namespace Parking_System_API.Controllers
                   new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
 
                     }
+                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
 
                     return Ok(new { message = "face recognition or plate recognition failed" });
                 }
@@ -606,6 +625,8 @@ namespace Parking_System_API.Controllers
                   new SocketMessage() { model = "face", status = "success", terminate = true, message = $"face has been recognized with ID :{ParticipantInfo[1]}", imagePath = "" });
 
                     }
+                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
 
                     return Ok(new { message = "face recognition or plate recognition failed" });
                 }
@@ -628,7 +649,8 @@ namespace Parking_System_API.Controllers
 
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
                   new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
-
+                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     return Ok(new { message = "face recognition failed" });
 
                 }
@@ -656,7 +678,8 @@ namespace Parking_System_API.Controllers
                  });
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
                   new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
-
+                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     return Ok(new { Error = "ParticipantId is unknown" });
                 }
 
@@ -683,7 +706,8 @@ namespace Parking_System_API.Controllers
                    });
                     await _messageHub.Clients.All.SendAsync("exitGateDetection",
                   new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
-
+                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     return Ok(new { Error = "ParticipantId is null" });
                 }
                 else
@@ -723,6 +747,8 @@ namespace Parking_System_API.Controllers
                               message = $"Car with PlateNumber {PlateNum} is not found",
                               imagePath = ""
                           });
+                        await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                         return Ok(new { Error = $"Car with PlateNumber {PlateNum} is not found" });
                     }
                     if (!car.IsPresent)
@@ -736,6 +762,8 @@ namespace Parking_System_API.Controllers
                            message = $"Car {car.PlateNumberId} was not present in garage",
                            imagePath = ""
                        });
+                        await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                         return Ok(new { Error = $"Car {car.PlateNumberId} was not present in garage" });
                     }
 
@@ -752,6 +780,8 @@ namespace Parking_System_API.Controllers
                            message = $"Person with Id {ParticipantId} is not found.",
                            imagePath = ""
                        });
+                        await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                         return Ok(new { Error = $"Person with Id {ParticipantId} is not found." });
                     }
 
@@ -794,6 +824,8 @@ namespace Parking_System_API.Controllers
                                 message = $"Subscription is not valid.",
                                 imagePath = ""
                             });
+                            await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                             return NotFound(new { Error = "Subscription is not valid." });
                         }
 
@@ -807,11 +839,15 @@ namespace Parking_System_API.Controllers
                         message = $"This participant doesn't own the vehicle",
                         imagePath = ""
                     });
+                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                     return NotFound(new { Error = $"Participant with {ParticipantId} doesn't own a Vehicle with PlateNumber {PlateNum}" });
                 }
             }
             catch (Exception ex)
             {
+                await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                   new SocketMessage() { model = "", status = "", terminate = true, message = "" });
                 return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
             }
         }
@@ -944,15 +980,15 @@ namespace Parking_System_API.Controllers
                 {
 
                 }
-                await _messageHub.Clients.All.SendAsync("exitGateDetection",
-                           new SocketMessage()
-                           {
-                               model = "gate",
-                               status = "closed",
-                               terminate = false,
-                               message = $"Gate is being closed the transaction failed",
-                               imagePath = ""
-                           });
+                //await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                //           new SocketMessage()
+                //           {
+                //               model = "gate",
+                //               status = "closed",
+                //               terminate = false,
+                //               message = $"Gate is being closed the transaction failed",
+                //               imagePath = ""
+                //           });
                 return Ok(new { Success = "transaction failed Gate is closed", GateStatus = "${ gate.State}" });
             }
             catch (Exception ex)
@@ -974,15 +1010,15 @@ namespace Parking_System_API.Controllers
                 {
                     return Ok(new { Error = "Gate Not Closed" });
                 }
-                await _messageHub.Clients.All.SendAsync("exitGateDetection",
-                           new SocketMessage()
-                           {
-                               model = "gate",
-                               status = (gate.State)? "open": "closed",
-                               terminate = false,
-                               message = "",
-                               imagePath = ""
-                           });
+                //await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                //           new SocketMessage()
+                //           {
+                //               model = "gate",
+                //               status = (gate.State)? "open": "closed",
+                //               terminate = false,
+                //               message = "",
+                //               imagePath = ""
+                //           });
                 return Ok(new { gateState = $"{gate.State}" , Id = $"{gate.Id}"});
             }
             catch (Exception ex)
