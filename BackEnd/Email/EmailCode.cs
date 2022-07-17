@@ -9,29 +9,35 @@ namespace Parking_System_API.Email
     {
         public static bool SendEmail(string ToEmail, string password, string mode = "Registration")
         {
-            try
-            {
                 Env.Load();
-                MailMessage mail = new MailMessage();
-                SmtpClient smtp = new SmtpClient("smtp.gmail.com");
+                SmtpClient smtpClient = new SmtpClient();
+                NetworkCredential basicCredential = new NetworkCredential(System.Environment.GetEnvironmentVariable("EMAIL") ?? throw new ArgumentNullException(), System.Environment.GetEnvironmentVariable("PASSWORD") ?? throw new ArgumentNullException());
+                MailMessage message = new MailMessage();
+                MailAddress fromAddress = new MailAddress(System.Environment.GetEnvironmentVariable("EMAIL") ?? throw new ArgumentNullException());
 
-                mail.From = new MailAddress(System.Environment.GetEnvironmentVariable("EMAIL") ?? throw new ArgumentNullException()) ;
-                mail.To.Add(ToEmail);
-                mail.Subject = $"Parking System Account {mode}";
-                mail.Body = $"Your Password is {password}";
 
-                smtp.Port = 587;
-                smtp.Credentials = new NetworkCredential(System.Environment.GetEnvironmentVariable("EMAIL") ?? throw new ArgumentNullException(), System.Environment.GetEnvironmentVariable("PASSWORD") ?? throw new ArgumentNullException());
-                smtp.EnableSsl = true;
+                smtpClient.EnableSsl = true;
+                smtpClient.Host = "smtp.gmail.com";
+                smtpClient.Port = 587;
+                smtpClient.UseDefaultCredentials = false;
+                smtpClient.Credentials = basicCredential;
 
-                smtp.Send(mail);
-                return true;
+                message.From = fromAddress;
+                message.Subject = $"Parking System Account {mode}";
+                //Set IsBodyHtml to true means you can send HTML email.
+                message.IsBodyHtml = false;
+                message.Body = $"Your Password is {password}";
+                message.To.Add(ToEmail);
+                try { 
 
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+                     smtpClient.Send(message);
+                        return true;
+
+                }
+                catch (Exception)
+                {
+                    return false;
+                 }
         }
     }
 }
