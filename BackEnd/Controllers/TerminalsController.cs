@@ -869,7 +869,19 @@ namespace Parking_System_API.Controllers
                 
                 if (!await gateRepository.SaveChangesAsync())
                 {
-
+                    
+                }
+                if(plateId == "") 
+                {
+                    await Task.Delay(2000);
+                    gate.State = false;
+                    return Ok(new { Success = "Gate is closed, there is no car", GateStatus = $"{ gate.State}" });
+                }
+                if(faceId == "") 
+                {
+                    await Task.Delay(2000);
+                    gate.State = false;
+                    return Ok(new { Success = "Gate is closed, there is no face", GateStatus = $"{ gate.State}" });
                 }
                 Vehicle car = await vehicleRepository.GetVehicleAsyncByPlateNumber(plateId);
 
@@ -909,7 +921,7 @@ namespace Parking_System_API.Controllers
                                    message = $"Entrance transaction completed successfully",
                                    imagePath = ""
                                });
-                    return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                    return Ok(new { Success = "Gate is closed", GateStatus = $"{ gate.State}" });
                 }
                 if (gateId == 2)
                 {
@@ -934,7 +946,7 @@ namespace Parking_System_API.Controllers
                         return Ok(new
                         {
                             Error = "Enter Transaction is not completed",
-                            GateStatus = "${ gate.State}"
+                            GateStatus = $"{ gate.State}"
                         });
                     }
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
@@ -946,7 +958,7 @@ namespace Parking_System_API.Controllers
                                    message = $"exit transaction completed successfully",
                                    imagePath = ""
                                });
-                    return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                    return Ok(new { Success = "Gate is closed", GateStatus = $"{ gate.State}" });
                 }
                 else 
                 {
@@ -959,7 +971,7 @@ namespace Parking_System_API.Controllers
                                    message = $"transaction failed",
                                    imagePath = ""
                                });
-                    return Ok(new { Success = "Gate is closed", GateStatus = "${ gate.State}" });
+                    return Ok(new { Success = "Gate is closed", GateStatus = $"{ gate.State}" });
                 }
             }
             catch (Exception ex)
@@ -989,7 +1001,7 @@ namespace Parking_System_API.Controllers
                 //               message = $"Gate is being closed the transaction failed",
                 //               imagePath = ""
                 //           });
-                return Ok(new { Success = "transaction failed Gate is closed", GateStatus = "${ gate.State}" });
+                return Ok(new { Success = "transaction failed Gate is closed", GateStatus = $"{ gate.State}" });
             }
             catch (Exception ex)
             {

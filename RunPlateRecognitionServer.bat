@@ -1,0 +1,1 @@
+.\venv\Scripts\activate && cd ANPR && flask run
