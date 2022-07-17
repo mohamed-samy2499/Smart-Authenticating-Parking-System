@@ -875,6 +875,26 @@ namespace Parking_System_API.Controllers
                 return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
             }
         }
+        [HttpGet("gatesState")]
+        public async Task<IActionResult> GateState()
+        {
+            try
+            {
+                var entranceGate = await gateRepository.GetGateById(1);
+                var exitGate = await gateRepository.GetGateById(2);
+
+                if (entranceGate == null)
+                    return NotFound(new { Error = $"Gate with id {1} doesn't exit" });
+                if (exitGate == null)
+                    return NotFound(new { Error = $"Gate with id {2} doesn't exit" });
+
+                return Ok(new { entranceGateStatus = "${entranceGate.State}" , exitGateStatus = "${exitGate.State}" });
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Internal Server Error {ex}");
+            }
+        }
 
     }
 }
