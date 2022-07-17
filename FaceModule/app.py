@@ -176,13 +176,22 @@ def home():
                             cv2.putText(frame, "?", (xmin,ymin-5), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                                 1, (0, 0, 0), thickness=1, lineType=1)
                     except:   
-                        counter+=1
-                        print("error")
-                        if counter == 15:
-                            cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
-                            with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
-                                img = base64.b64encode(file.read()).decode('utf-8')
-                                return jsonify({"Id":"unknown" , "face":img})
+                        # counter+=1
+                        # print("error")
+                        # if counter == 15:
+                        ret, frame = video_capture.read()
+                        cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                        with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                            img = base64.b64encode(file.read()).decode('utf-8')
+                            return jsonify({"Id":"unknown" , "face":img})
+                    # except UnboundLocalError:
+                    #     counter+=1
+                    #     print("error")
+                    #     if counter == 15:
+                    #         cv2.imwrite(os.path.join(os.getcwd(),"detected_face.jpeg"), frame)
+                    #         with open(os.path.join(os.getcwd(),"detected_face.jpeg"), mode='rb') as file:
+                    #             img = base64.b64encode(file.read()).decode('utf-8')
+                    #             return jsonify({"Id":"unknown" , "face":img})
                         
             endtimer = time.time()
             fps = 1/(endtimer-timer)
