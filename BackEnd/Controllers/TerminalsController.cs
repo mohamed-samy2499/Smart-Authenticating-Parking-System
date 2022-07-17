@@ -983,7 +983,7 @@ namespace Parking_System_API.Controllers
                                message = "",
                                imagePath = ""
                            });
-                return Ok(new { gateState = $"{gate.State}" });
+                return Ok(new { gateState = $"{gate.State}" , Id = $"{gate.Id}"});
             }
             catch (Exception ex)
             {
