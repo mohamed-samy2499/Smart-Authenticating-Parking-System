@@ -1,1 +1,1 @@
-cd FaceModule && python detectFaceApi.py
+.\venv\Scripts\Activate.ps1 && cd FaceModule && python detectFaceApi.py

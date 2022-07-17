@@ -1,1 +1,1 @@
-cd ANPR && flask run
+.\venv\Scripts\Activate.ps1 && cd ANPR && flask run
