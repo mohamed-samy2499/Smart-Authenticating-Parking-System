@@ -16,7 +16,7 @@ export default class CustomersStore {
 	getCustomersState: ApiCallStates = ApiCallStates.IDLE
 	logs: any[] = []
 
-	createCustomer = async (data: customerData, onClose: () => void) => {
+	createCustomer = async (data: any, onClose: () => void) => {
 		// const newArray = this.customersArray;
 		// newArray.push(data);
 		// this.customersArray = newArray;

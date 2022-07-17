@@ -4,7 +4,7 @@ import { GTableColumn } from 'components/basic-blocks/g-table/types'
 import moment from 'moment'
 import { useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { CreateEditCustomer } from './customer-table/create-edit-customer'
+import { CreateEditCustomer } from './create-edit-customer'
 import { useStores } from 'hooks/useStores'
 import { observer } from 'mobx-react'
 // import { CreateEditCar } from './create-edit-car'
@@ -72,6 +72,7 @@ const RenderActions = observer((props:any)=>{
 				onClick={()=>setOpenLogs(true)}
 			/>
 			<GDialog 
+				title='Edit Customer'
 				open={openEdit}
 				onClose={()=>setOpenEdit(false)}
 			>

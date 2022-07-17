@@ -3,7 +3,8 @@ import { useStores } from '../../hooks/useStores'
 import { observer } from 'mobx-react'
 import { GButton, GDialog, GLoading, GSection, GTable } from 'components/basic-blocks'
 import {columns} from './columns'
-import { CreateEditCustomer } from './customer-table/create-edit-customer'
+// import { CreateEditCustomer } from './customer-table/create-edit-customer'
+import { CreateEditCustomer } from './create-edit-customer'
 
 export const CustomerPage = observer(() => {
 	const { customersStore } = useStores()
@@ -20,8 +21,6 @@ export const CustomerPage = observer(() => {
 		<GSection 
 			title="Customers"
 			actions={<AddCustomer />}
-			
-		
 		>
 			<GTable<any>
 				columns={columns}
@@ -35,6 +34,7 @@ export const CustomerPage = observer(() => {
 		return(
 			<>
 				<GDialog
+					title='Create Customer'
 					open={openEdit}
 					onClose={()=>setOpenEdit(false)}
 				>

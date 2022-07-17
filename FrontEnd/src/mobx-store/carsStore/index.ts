@@ -4,6 +4,7 @@ import { carsServices } from '../../Services/carsServices'
 import { ApiCallStates } from '../types'
 import { carsData } from './types'
 import { UiStore } from '../uiStore'
+import { parseError } from 'utils/errors'
 
 export default class CarsStore {
 	constructor(uiStore: UiStore) {
@@ -12,7 +13,7 @@ export default class CarsStore {
 	}
 	uiStore: UiStore
 
-	cars: carsData[] = []
+	cars: any[] = []
 	getCarsState: ApiCallStates = ApiCallStates.IDLE
 	carsArray: carsData[] = [
 		{
@@ -64,7 +65,7 @@ export default class CarsStore {
 			this.uiStore.setCallState('mutateCars', 'success', 'car added successfully')
 		} catch (error) {
 			console.log(error)
-			this.uiStore.setCallState('mutateCars', 'error', 'Failded to update car')
+			this.uiStore.setCallState('mutateCars', 'error', parseError(error))
 		}
 	}
 	// deleteCars = async (id: any) => {

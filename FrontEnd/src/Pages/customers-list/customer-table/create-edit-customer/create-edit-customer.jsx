@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import  { useState } from 'react'
 import {
 	Avatar,
 	Button,
@@ -8,15 +8,13 @@ import {
 	Box,
 	Typography,
 	Container,
-	FormControlLabel,
-	Checkbox
+
 } from '@mui/material'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-import DatePicker from '@mui/lab/DatePicker'
+
 import { observer } from 'mobx-react'
 import { useStores } from '../../../../hooks/useStores'
-import { Link, useLocation } from 'react-router-dom'
-import { LicencePlate } from '../../../../components/licencePlate'
+
 
 import './create-edit-customer.css'
 import { GLoading } from 'components/basic-blocks'
