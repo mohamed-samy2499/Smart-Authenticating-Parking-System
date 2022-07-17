@@ -96,15 +96,15 @@ namespace Parking_System_API.Controllers
                     }
 
                     }
-                //await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                //    new SocketMessage()
-                //    {
-                //        model = "gate",
-                //        status = "closed",
-                //        terminate = false,
-                //        message = $"Gate is closed",
-                //        imagePath = ""
-                //    });
+                await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                    new SocketMessage()
+                    {
+                        model = "gate",
+                        status = "closed",
+                        terminate = false,
+                        message = $"Gate is closed",
+                        imagePath = ""
+                    });
                 //gate is closed
                 //calling APNR model
                 string PlateNum = "";
@@ -127,21 +127,32 @@ namespace Parking_System_API.Controllers
                 ParticipantIdThread.Join();
                 VehicleThread.Join();
 
-                if (ParticipantInfo[0] == "face_failed"|| PlateNum == "plate_failed")
+                if (ParticipantInfo[0] == "face_failed")
                 {
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
+
+                    return Ok(new { message = "face recognition or plate recognition failed" });
+                }
+                if (PlateNum == "plate_failed")
+                {
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "face", status = "success", terminate = true, message = $"face has been recognized with id :{ ParticipantInfo[1]}"
+                    , imagePath = "" });
 
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                   new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
 
                     return Ok(new { message = "face recognition or plate recognition failed" });
                 }
-               
 
-                   
-              
-                
+
+
+
+
                 var ParticipantId = ParticipantInfo[1];
 
                 //var face_path = ParticipantInfo[0];
@@ -155,10 +166,12 @@ namespace Parking_System_API.Controllers
                 if (ParticipantId == "InternalError")
                 {
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                   new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+                   new SocketMessage() { model = "face", status = "failed", terminate = true, message = "Internal server error ", imagePath = "" });
+
 
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                  new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+                  new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
+
                     return Ok(new { message = "face recognition failed" });
 
                 }
@@ -175,7 +188,18 @@ namespace Parking_System_API.Controllers
                            imagePath = ""
                        });
                     await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
-                  new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
+                 new SocketMessage()
+                 {
+                     model = "face",
+                     status = "success",
+                     terminate = true,
+                     message = $"face has been recognized with id :{ ParticipantInfo[1]}"
+                  ,
+                     imagePath = ""
+                 });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
+
                     return Ok(new { Error = "ParticipantId is unknown" });
                 }
 
@@ -189,7 +213,19 @@ namespace Parking_System_API.Controllers
                            message = $"ParticipantId is null",
                            imagePath = ""
                        });
-                 
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage()
+                   {
+                       model = "face",
+                       status = "failed",
+                       terminate = true,
+                       message = $"recognition failed"
+                    ,
+                       imagePath = ""
+                   });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
+
                     return Ok(new { Error = "ParticipantId is null" });
             }
                 else
@@ -497,13 +533,30 @@ namespace Parking_System_API.Controllers
 
                 ParticipantIdThread.Join();
                 VehicleThread.Join();
-
-                if (ParticipantInfo[0] == "face_failed" || PlateNum == "plate_failed")
+                if (ParticipantInfo[0] == "face_failed")
                 {
-                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
 
-                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
+
+                    return Ok(new { message = "face recognition or plate recognition failed" });
+                }
+                if (PlateNum == "plate_failed")
+                {
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage()
+                   {
+                       model = "face",
+                       status = "success",
+                       terminate = true,
+                       message = $"face has been recognized with id :{ ParticipantInfo[1]}"
+                    ,
+                       imagePath = ""
+                   });
+
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                   new SocketMessage() { model = "plate", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
 
                     return Ok(new { message = "face recognition or plate recognition failed" });
@@ -520,31 +573,20 @@ namespace Parking_System_API.Controllers
                 //i3.Save(filePath, ImageFormat.Jpeg);
                 if (ParticipantId == "InternalError")
                 {
-                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
-                    new SocketMessage() { model = "face", status = "failed", terminate = true, message = "recognition failed ", imagePath = "" });
-                    return NotFound("face recognition failed");
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage() { model = "face", status = "failed", terminate = true, message = "Internal server error ", imagePath = "" });
+
+
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
+
+                    return Ok(new { message = "face recognition failed" });
 
                 }
 
-                else if (ParticipantId == null)
-                {
-                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
-                       new SocketMessage()
-                       {
-                           model = "gate",
-                           status = "closed",
-                           terminate = false,
-                           message = $"ParticipantId is null",
-                           imagePath = ""
-                       });
-                    return BadRequest(new { Error = "ParticipantId is null" });
-                }
                 else if (ParticipantId == "unknown")
-                //short term
-                //user should move his head in front of camera for few seconds when detection starts
-
                 {
-                    await _messageHub.Clients.All.SendAsync("exitGateDetection",
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
                        new SocketMessage()
                        {
                            model = "gate",
@@ -553,23 +595,47 @@ namespace Parking_System_API.Controllers
                            message = $"ParticipantId is unknown",
                            imagePath = ""
                        });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                 new SocketMessage()
+                 {
+                     model = "face",
+                     status = "success",
+                     terminate = true,
+                     message = $"face has been recognized with id :{ ParticipantInfo[1]}"
+                  ,
+                     imagePath = ""
+                 });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
+
                     return Ok(new { Error = "ParticipantId is unknown" });
-                    //var short_term_vehicle = new Vehicle { PlateNumberId = PlateNum };
-                    //ICollection<Vehicle> short_term_vehicles = new List<Vehicle>
-                    //{
-                    //    short_term_vehicle
-                    //};
+                }
 
-                    //var short_term_participant = new ShortTerm
-                    //{
-                    //    Vehicle = short_term_vehicle,
-                    //    Id = Guid.NewGuid().ToString(),
-                    //    DoProvideVideo = false,
-                    //    DoDetected = false
+                else if (ParticipantId == null)
+                {
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                       new SocketMessage()
+                       {
+                           model = "gate",
+                           status = "closed",
+                           terminate = false,
+                           message = $"ParticipantId is null",
+                           imagePath = ""
+                       });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                   new SocketMessage()
+                   {
+                       model = "face",
+                       status = "failed",
+                       terminate = true,
+                       message = $"recognition failed"
+                    ,
+                       imagePath = ""
+                   });
+                    await _messageHub.Clients.All.SendAsync("enteranceGateDetection",
+                  new SocketMessage() { model = "plate", status = "success", terminate = true, message = $"plate has been recognized with number :{PlateNum}", imagePath = "" });
 
-                    //};
-                    //Capture A few seconds video then upload it to face model to create the classifier for the current short term user
-                    //return NotFound(new { Error = "ParticipantId is unknown" });
+                    return Ok(new { Error = "ParticipantId is null" });
                 }
                 else
                 {

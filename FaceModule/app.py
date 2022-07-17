@@ -66,8 +66,11 @@ app.config['JSON_SORT_KEYS'] = False
 
 @app.route('/')
 def home():
-    # r = request.form.get('num_plate')
+    r = request.form.get('num_plate')
     video_capture = cv2.VideoCapture(video+ cv2.CAP_DSHOW)
+    #video_capture = cv2.VideoCapture(video)
+
+    
     print('Start Recognition')
     # print(r)
     frame_count=0
@@ -133,7 +136,7 @@ def home():
                         predictions = model.predict_proba(emb_array)
                         best_class_indices = np.argmax(predictions, axis=1)
                         best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
-                        if best_class_probabilities>0.92:
+                        if best_class_probabilities>0.95:
                             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)    #boxing face
                             for H_i in HumanNames:
                                 if HumanNames[best_class_indices[0]] == H_i:
