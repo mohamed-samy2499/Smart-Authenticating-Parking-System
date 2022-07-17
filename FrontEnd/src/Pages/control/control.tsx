@@ -86,7 +86,7 @@ export const Control =  observer((props: any) =>{
 							/>
 							<GButton
 								size='sm'
-								label='Car Entered'
+								label='Car Passed'
 								variant='outlined'
 								color='success'
 								onClick={()=>{passedGate('1','enter')}}
@@ -101,6 +101,14 @@ export const Control =  observer((props: any) =>{
 								onClick={()=>{departureGate('1','enter')}}
 								loading={uiStore.apiCallStates.enteranceGate==='loading'}
 								disabled={enteranceGate.face.status==='idle'|| uiStore.apiCallStates.enteranceGate==='loading'}
+							/>
+							<GButton
+								size='sm'
+								label={enteranceGate.status?'Close Gate':'Open Gate'}
+								variant='outlined'
+								color={enteranceGate.status?'danger':'success'}
+								onClick={()=>{departureGate('1','enter')}}
+								loading={uiStore.apiCallStates.enteranceGate==='loading'}
 							/>
 						</div>
 						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
@@ -122,16 +130,16 @@ export const Control =  observer((props: any) =>{
 								</div>
 							</div>
 							{true && (
-								<div className='flex justify-start items-center gap-4'>
+								<div className='flex flex-col justify-center items-start gap-4'>
 									<div className='font-bold'>
 									Current Photo detected: 
 									</div>
-									<div className='w-28'>
+									{enteranceGate.face.img ?<div className='w-28'>
 										<img
-											className={'inline-block h-10 w-10 rounded-full border-2 border-gray-300'}
+											className={'inline-block h-20 w-20 rounded-full border-2 border-gray-300'}
 											src={enteranceGate.face.img || 'https://eu.ui-avatars.com/api/?name=UknownPerson'} alt='user photo'
 										/>
-									</div>
+									</div>:'N/A'}
 								</div>
 							)}
 						</div>
@@ -193,7 +201,7 @@ export const Control =  observer((props: any) =>{
 							/>
 							<GButton
 								size='sm'
-								label='Car Entered'
+								label='Car Passed'
 								variant='outlined'
 								color='success'
 								onClick={()=>{passedGate('2','exit')}}
@@ -209,12 +217,20 @@ export const Control =  observer((props: any) =>{
 								loading={uiStore.apiCallStates.exitGate==='loading'}
 								disabled={exitGate.face.status==='idle'|| uiStore.apiCallStates.exitGate==='loading'}
 							/>
+							<GButton
+								size='sm'
+								label={exitGate.status?'Close Gate':'Open Gate'}
+								variant='outlined'
+								color={exitGate.status?'danger':'success'}
+								onClick={()=>{departureGate('1','enter')}}
+								loading={uiStore.apiCallStates.exitGate==='loading'}
+							/>
 						</div>	
 						<div className='mt-2 bg-warning-100 text-primary-900 p-4 rounded-md'>
 							<h1 className=' font-bold text-2xl mb-6 bg-white inline-flex p-2 rounded-md text-primary-400'>Face module </h1>
 							<div className='flex justify-start items-center gap-2'>
 								<div className='font-bold'>
-									Face Info: 
+									Info: 
 								</div>
 								<div >
 									{exitGate.face.info ||'Idle'}
@@ -229,16 +245,17 @@ export const Control =  observer((props: any) =>{
 								</div>
 							</div>
 							{true && (
-								<div className='flex justify-start items-center gap-4'>
+								<div className='flex flex-col justify-center items-start gap-4'>
 									<div className='font-bold'>
 									Current Photo detected: 
 									</div>
-									<div className='w-28'>
+
+									{exitGate.face.img ?<div className='w-28'>
 										<img
-											className={'inline-block h-10 w-10 rounded-full border-2 border-gray-300'}
+											className={'inline-block h-20 w-20 rounded-full border-2 border-gray-300'}
 											src={exitGate.face.img || 'https://eu.ui-avatars.com/api/?name=UknownPerson'} alt='user photo'
 										/>
-									</div>
+									</div>:'N/A'}
 								</div>
 							)}
 						</div>
