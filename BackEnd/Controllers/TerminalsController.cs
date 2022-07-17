@@ -871,13 +871,13 @@ namespace Parking_System_API.Controllers
                 {
                     
                 }
-                if(plateId == null) 
+                if(plateId == "") 
                 {
                     await Task.Delay(2000);
                     gate.State = false;
                     return Ok(new { Success = "Gate is closed, there is no car", GateStatus = $"{ gate.State}" });
                 }
-                if(faceId == null) 
+                if(faceId == "") 
                 {
                     await Task.Delay(2000);
                     gate.State = false;
