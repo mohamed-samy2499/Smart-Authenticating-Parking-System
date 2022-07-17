@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import http from '../../Services/httpService'
 import { observer } from 'mobx-react'
 import {  GListbox,} from 'components/basic-blocks'
@@ -13,7 +13,6 @@ export const Control =  observer(() =>{
 			plate:{img:undefined,info:'',status:'idle',id:''},
 			status:false,
 			message:'',
-			title:'Enterance Gate Control'
 		}
 	)
 	const [exitGate,setExitGate] = useState<any>(
@@ -21,10 +20,22 @@ export const Control =  observer(() =>{
 			face:{img:undefined,info:'',status:'idle',id:''},
 			plate:{img:undefined,info:'',status:'idle',id:''},
 			status:false,
-			message:'',
-			title:'Exit Gate Control'
+			message:'',	
 		}
 	)
+
+	useEffect(()=>{
+		(async ()=>{
+			try{
+				const gateStatus= await http.get('Terminals/gatesState')
+				console.log('gateStatusResp...',gateStatus.data)
+				setEnteranceGate((prevState:any)=>({...prevState,status:gateStatus.data.entranceGateStatus==='False'?false:true}))
+				setExitGate((prevState:any)=>({...prevState,status:gateStatus.data.exitGateStatus==='False'?false:true}))
+			}catch(e){
+				console.log(e)
+			}
+		})()
+	},[])
 
 	const options = [
 		{label:'LP7',url:'./data/LP7_trimmed.mp4'},
@@ -66,7 +77,7 @@ export const Control =  observer(() =>{
 						title='Enterance Gate Control'
 						gate={enteranceGate} 
 						setGate={setEnteranceGate}
-						key='enteranceGate'
+						id='enteranceGate'
 					/>
 				</div>
 				{/* EXIT GATE Section */}
@@ -75,7 +86,7 @@ export const Control =  observer(() =>{
 						title='Exit Gate Control'
 						gate={exitGate} 
 						setGate={setExitGate}		
-						key='exitGate'
+						id='exitGate'
 					/>
 				</div>
 			</div>
