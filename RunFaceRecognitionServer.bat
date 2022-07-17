@@ -1,1 +1,1 @@
-.\venv\Scripts\Activate.ps1 && cd FaceModule && flask run --port 8500
+.\venv\Scripts\activate && cd FaceModule && flask run --port 8500
