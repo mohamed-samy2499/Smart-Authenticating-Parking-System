@@ -983,7 +983,7 @@ namespace Parking_System_API.Controllers
                                message = "",
                                imagePath = ""
                            });
-                return Ok(new { GateStatus = "${gate.State}" });
+                return Ok(new { gateState = $"{gate.State}" });
             }
             catch (Exception ex)
             {
@@ -1003,7 +1003,7 @@ namespace Parking_System_API.Controllers
                 if (exitGate == null)
                     return NotFound(new { Error = $"Gate with id {2} doesn't exit" });
 
-                return Ok(new { entranceGateStatus = "${entranceGate.State}" , exitGateStatus = "${exitGate.State}" });
+                return Ok(new { entranceGateStatus = $"{entranceGate.State}" , exitGateStatus = $"{exitGate.State}" });
             }
             catch (Exception ex)
             {
